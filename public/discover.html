@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover Hotels</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .discover-controls {
+      display: flex;
+      gap: 12px;
+      padding: 24px 40px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .discover-controls select,
+    .discover-controls input {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--white);
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    .discover-controls select { min-width: 220px; cursor: pointer; }
+    .discover-controls input { min-width: 250px; flex: 1; }
+
+    .discover-controls select:focus,
+    .discover-controls input:focus { outline: none; border-color: var(--primary); }
+
+    .btn-quick { background: var(--bg-card); border: 1px solid var(--primary); color: var(--primary); }
+    .btn-quick:hover { background: var(--primary-dim); }
+    .btn-deep { background: var(--primary); color: #0a0a0a; font-weight: 600; }
+    .btn-deep:hover { background: var(--primary-hover); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .status-panel {
+      margin: 0 40px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: none;
+    }
+
+    .status-panel.active { display: block; }
+    .status-panel.error { border-color: var(--red); }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .progress-log {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      max-height: 100px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .results-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      margin-bottom: 16px;
+    }
+
+    .results-bar h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .results-meta {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .discover-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+      padding: 0 40px 40px;
+    }
+
+    .disc-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color var(--transition);
+    }
+
+    .disc-card:hover { border-color: rgba(46, 163, 242, 0.4); }
+    .disc-card.is-duplicate { opacity: 0.5; border-color: var(--text-dim); }
+    .disc-card.added { border-color: var(--green); }
+
+    .disc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .disc-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .disc-badge {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-rating { background: var(--primary-dim); color: var(--primary); }
+    .badge-duplicate { background: rgba(136,136,136,0.15); color: #999; }
+    .badge-seed { background: rgba(78,203,113,0.12); color: var(--green); font-size: 0.7rem; }
+    .badge-source { background: rgba(74,158,255,0.12); color: var(--primary); }
+    .badge-added { background: rgba(78,203,113,0.15); color: var(--green); }
+    .badge-unreachable { background: rgba(229,77,77,0.12); color: var(--red); }
+
+    .disc-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+
+    .disc-field {
+      display: flex;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .disc-label {
+      color: var(--text-dim);
+      min-width: 72px;
+      flex-shrink: 0;
+    }
+
+    .disc-value {
+      color: var(--text);
+      word-break: break-all;
+    }
+
+    .disc-value a { color: var(--primary); text-decoration: none; }
+    .disc-value a:hover { text-decoration: underline; }
+    .disc-price { color: var(--green); font-weight: 600; }
+
+    .disc-coords {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      font-family: monospace;
+    }
+
+    .disc-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-add {
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--primary);
+      color: #0a0a0a;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .btn-add:hover { background: var(--primary-hover); }
+    .btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-dismiss {
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .btn-dismiss:hover { border-color: var(--red); color: var(--red); }
+
+    .btn-add-all {
+      padding: 8px 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: var(--primary);
+      color: #0a0a0a;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+
+    .btn-add-all:hover { background: var(--primary-hover); }
+    .btn-add-all:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .empty-discover {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-discover p {
+      font-size: 0.95rem;
+      max-width: 420px;
+      margin: 12px auto 0;
+      line-height: 1.6;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      opacity: 0.3;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .discover-controls { padding: 16px 20px; flex-direction: column; }
+      .discover-controls select, .discover-controls input { min-width: unset; width: 100%; }
+      .discover-cards { padding: 0 20px 40px; grid-template-columns: 1fr; }
+      .results-bar { padding: 0 20px; }
+      .status-panel { margin: 0 20px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-brand">Hotel Researcher</div>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Dashboard</a>
+      <a href="/discover.html" class="nav-link active">Discover</a>
+      <a href="/map.html" class="nav-link">Map</a>
+      <a href="/outreach.html" class="nav-link">Outreach</a>
+    </div>
+  </nav>
+
+  <header>
+    <div class="header-content">
+      <h1>Discover Hotels</h1>
+      <div class="gold-line"></div>
+    </div>
+  </header>
+
+  <div class="discover-controls">
+    <select id="regionSelect">
+      <option value="">Select a region...</option>
+    </select>
+    <input type="text" id="customRegion" placeholder="Or type a custom region..." />
+    <button class="btn btn-quick" id="quickBtn" onclick="runQuickScan()">Quick Scan</button>
+    <button class="btn btn-deep" id="deepBtn" onclick="runDeepResearch()">Deep Research</button>
+  </div>
+
+  <div class="status-panel" id="statusPanel">
+    <div class="status-header">
+      <div class="spinner" id="spinner"></div>
+      <span class="status-title" id="statusTitle">Searching...</span>
+    </div>
+    <div class="progress-log" id="progressLog"></div>
+  </div>
+
+  <div id="resultsArea" style="display:none;">
+    <div class="results-bar">
+      <h2 id="resultsTitle">Results</h2>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span class="results-meta" id="resultsMeta"></span>
+        <button class="btn-add-all" id="addAllBtn" onclick="addAll()">Add All to Dashboard</button>
+      </div>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+
+  <div class="empty-discover" id="emptyState">
+    <div class="empty-icon">&#x1F50D;</div>
+    <p>Select a pre-configured Mexican region or type any region name, then hit Quick Scan (Overpass only, fast) or Deep Research (Overpass + website scraping).</p>
+  </div>
+
+  <script>
+    let currentHotels = [];
+    let seedHotels = [];
+    let pollInterval = null;
+
+    function handleImgError(img) {
+      const wrap = img.parentElement;
+      img.remove();
+      const initials = wrap.dataset.initials || '?';
+      const fallback = document.createElement('div');
+      fallback.className = 'card-initials';
+      fallback.textContent = initials;
+      wrap.insertBefore(fallback, wrap.firstChild);
+    }
+
+    // Load seed data for a region (instant)
+    async function loadSeeds(region) {
+      try {
+        const res = await fetch(`/api/research/seeds/${encodeURIComponent(region)}`);
+        const data = await res.json();
+        return data.hotels || [];
+      } catch { return []; }
+    }
+
+    // Merge live results with seeds, dedup by normalized name
+    function mergeWithSeeds(seeds, liveHotels, liveDupes) {
+      const seedNames = new Set(seeds.map(s => s.name.toLowerCase().replace(/[^a-z0-9]/g, '')));
+      const newLive = liveHotels.filter(h => {
+        const key = h.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return !seedNames.has(key);
+      });
+      const newDupes = (liveDupes || []).filter(h => {
+        const key = h.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return !seedNames.has(key);
+      });
+      return { hotels: [...seeds, ...newLive], duplicates: newDupes };
+    }
+
+    // Load regions into dropdown
+    async function loadRegions() {
+      try {
+        const res = await fetch('/api/regions');
+        const regions = await res.json();
+        const select = document.getElementById('regionSelect');
+        regions.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.name;
+          opt.textContent = `${r.name} (${r.state})`;
+          select.appendChild(opt);
+        });
+      } catch {}
+    }
+
+    function getRegion() {
+      const custom = document.getElementById('customRegion').value.trim();
+      if (custom) return custom;
+      return document.getElementById('regionSelect').value;
+    }
+
+    function setLoading(on) {
+      document.getElementById('quickBtn').disabled = on;
+      document.getElementById('deepBtn').disabled = on;
+    }
+
+    function showStatus(title, logs, isError) {
+      const panel = document.getElementById('statusPanel');
+      panel.className = 'status-panel active' + (isError ? ' error' : '');
+      document.getElementById('statusTitle').textContent = title;
+      document.getElementById('spinner').style.display = isError ? 'none' : 'block';
+      if (logs) {
+        document.getElementById('progressLog').textContent = logs.join('\n');
+      }
+    }
+
+    function hideStatus() {
+      document.getElementById('statusPanel').className = 'status-panel';
+    }
+
+    function esc(str) {
+      if (!str) return '';
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    // Quick Scan: show seeds instantly, then merge live results
+    async function runQuickScan() {
+      const region = getRegion();
+      if (!region) return alert('Select or type a region first');
+
+      setLoading(true);
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('resultsArea').style.display = 'none';
+
+      // Step 1: Show seeds instantly
+      seedHotels = await loadSeeds(region);
+      if (seedHotels.length > 0) {
+        renderResults(seedHotels, [], region, 'Pre-researched results');
+        showStatus(`Showing ${seedHotels.length} pre-researched hotels. Running live Overpass scan in background...`, []);
+      } else {
+        showStatus(`Searching OpenStreetMap for hotels in ${region}...`, []);
+      }
+
+      // Step 2: Run live scan
+      try {
+        const res = await fetch('/api/research/quick', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ region })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (seedHotels.length === 0) showStatus(data.error || 'Scan failed', [], true);
+          else hideStatus();
+          return;
+        }
+
+        hideStatus();
+        // Merge live with seeds
+        const { hotels, duplicates } = mergeWithSeeds(seedHotels, data.hotels, data.duplicates);
+        const label = seedHotels.length > 0
+          ? `Pre-researched + Quick Scan`
+          : 'Quick Scan';
+        renderResults(hotels, duplicates, region, label);
+      } catch (err) {
+        if (seedHotels.length === 0) {
+          showStatus('Connection error: ' + err.message, [], true);
+        } else {
+          hideStatus();
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Deep Research: show seeds instantly, poll for live results
+    async function runDeepResearch() {
+      const region = getRegion();
+      if (!region) return alert('Select or type a region first');
+
+      setLoading(true);
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('resultsArea').style.display = 'none';
+
+      // Step 1: Show seeds instantly
+      seedHotels = await loadSeeds(region);
+      if (seedHotels.length > 0) {
+        renderResults(seedHotels, [], region, 'Pre-researched results');
+        showStatus(`Showing ${seedHotels.length} pre-researched hotels. Running deep research in background...`, ['Initializing research engine...']);
+      } else {
+        showStatus(`Starting deep research for ${region}...`, ['Initializing research engine...']);
+      }
+
+      // Step 2: Start async research job
+      try {
+        const res = await fetch('/api/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ region })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (seedHotels.length === 0) showStatus(data.error || 'Research failed', [], true);
+          else hideStatus();
+          setLoading(false);
+          return;
+        }
+
+        // Start polling
+        pollJob(data.jobId, region);
+      } catch (err) {
+        if (seedHotels.length === 0) {
+          showStatus('Connection error: ' + err.message, [], true);
+        } else {
+          hideStatus();
+        }
+        setLoading(false);
+      }
+    }
+
+    function pollJob(jobId, region) {
+      if (pollInterval) clearInterval(pollInterval);
+
+      pollInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/research/${jobId}`);
+          const job = await res.json();
+
+          if (job.status === 'researching') {
+            const seedNote = seedHotels.length > 0
+              ? `Showing ${seedHotels.length} pre-researched results while scanning...`
+              : '';
+            const logs = seedNote ? [seedNote, ...job.progress] : job.progress;
+            showStatus(`Researching ${region}...`, logs);
+          } else if (job.status === 'complete') {
+            clearInterval(pollInterval);
+            pollInterval = null;
+            hideStatus();
+            setLoading(false);
+            // Merge live with seeds
+            const { hotels, duplicates } = mergeWithSeeds(seedHotels, job.hotels, job.duplicates);
+            const label = seedHotels.length > 0
+              ? `Pre-researched + Deep Research`
+              : 'Deep Research';
+            renderResults(hotels, duplicates, region, label);
+          } else if (job.status === 'error') {
+            clearInterval(pollInterval);
+            pollInterval = null;
+            if (seedHotels.length === 0) {
+              showStatus(`Research failed: ${job.error}`, job.progress, true);
+            } else {
+              hideStatus();
+            }
+            setLoading(false);
+          }
+        } catch {
+          clearInterval(pollInterval);
+          pollInterval = null;
+          if (seedHotels.length === 0) {
+            showStatus('Lost connection to server', [], true);
+          } else {
+            hideStatus();
+          }
+          setLoading(false);
+        }
+      }, 2000);
+    }
+
+    function renderResults(hotels, duplicates, region, mode) {
+      currentHotels = hotels;
+      const area = document.getElementById('resultsArea');
+      const grid = document.getElementById('cardsGrid');
+      const empty = document.getElementById('emptyState');
+
+      if (hotels.length === 0 && duplicates.length === 0) {
+        area.style.display = 'none';
+        empty.style.display = 'block';
+        empty.querySelector('p').textContent = `No hotels found in ${region}. Try a different region or a Deep Research scan.`;
+        return;
+      }
+
+      empty.style.display = 'none';
+      area.style.display = 'block';
+
+      document.getElementById('resultsTitle').textContent = `${mode} Results`;
+      document.getElementById('resultsMeta').textContent =
+        `${hotels.length} new hotel${hotels.length !== 1 ? 's' : ''} found` +
+        (duplicates.length > 0 ? ` | ${duplicates.length} already in database` : '');
+
+      document.getElementById('addAllBtn').style.display = hotels.length > 0 ? 'inline-block' : 'none';
+
+      const allCards = [
+        ...hotels.map(h => renderCard(h, false)),
+        ...duplicates.map(h => renderCard(h, true))
+      ];
+
+      grid.innerHTML = allCards.join('');
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      return name.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+    }
+
+    const PEXELS_IDS = [261102, 338504, 189296, 258154, 1134176, 2507010, 2034335, 1268871, 2373201, 1457842, 2029722, 3155666, 2462015, 1743231, 2417842, 2029731, 3225531, 2404843, 1488327, 2096983];
+    function getPexelsUrl(name) {
+      let hash = 0;
+      const n = (name || '').toLowerCase();
+      for (let i = 0; i < n.length; i++) { hash = ((hash << 5) - hash) + n.charCodeAt(i); hash = hash & hash; }
+      const idx = Math.abs(hash) % PEXELS_IDS.length;
+      const id = PEXELS_IDS[idx];
+      return 'https://images.pexels.com/photos/' + id + '/pexels-photo-' + id + '.jpeg?auto=compress&cs=tinysrgb&w=800';
+    }
+
+    function renderCard(h, isDuplicate) {
+      const ratingText = h.rating > 0 ? (h.rating <= 5 ? h.rating + '/5' : h.rating + '/10') : '';
+      const initials = getInitials(h.name);
+      const imgUrl = h.imageUrl || getPexelsUrl(h.name);
+      const priceDisplay = h.avgPricePerNight || '';
+
+      const coords = (h.lat && h.lon) ? `\uD83D\uDCCD ${h.lat.toFixed(4)}, ${h.lon.toFixed(4)}` : '';
+
+      const cardClass = isDuplicate ? 'hotel-card' : 'hotel-card';
+      const opacity = isDuplicate ? 'opacity:0.5;' : '';
+
+      const actionBtn = isDuplicate
+        ? '<span class="status-pill status-not_contacted" style="font-size:0.75rem">Already in DB</span>'
+        : `<button class="btn-email" id="add-${h.id}" onclick="event.stopPropagation();addHotel('${h.id}')">+ Add to Dashboard</button>
+           <button class="btn-view" onclick="event.stopPropagation();dismissCard('${h.id}')" style="color:var(--red);border-color:var(--red)">Dismiss</button>`;
+
+      const tags = [];
+      if (!isDuplicate && h.source) tags.push('<span class="tag">' + esc(h.source) + '</span>');
+      if (h.email) tags.push('<span class="tag">Email found</span>');
+      if (h.instagram) tags.push('<span class="tag">' + esc(h.instagram) + '</span>');
+
+      return `
+        <div class="${cardClass}" id="card-${h.id}" style="${opacity}">
+          <div class="card-img-wrap" data-initials="${esc(initials)}">
+            <img class="card-img" src="${esc(imgUrl)}" alt="${esc(h.name)}" loading="lazy" onerror="handleImgError(this)">
+            <div class="card-gradient"></div>
+            ${ratingText ? '<span class="card-rating">' + esc(ratingText) + '</span>' : ''}
+            ${!isDuplicate ? '<span class="card-new-badge">NEW</span>' : ''}
+            ${priceDisplay ? '<span class="card-price">' + esc(priceDisplay) + '</span>' : ''}
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">${esc(h.name)}</h3>
+            <p class="card-location">\uD83D\uDCCD ${esc(h.location || 'Unknown')}${coords ? ' (' + coords + ')' : ''}</p>
+            <div class="card-tags">${tags.join('')}</div>
+            <div class="card-actions">${actionBtn}</div>
+          </div>
+        </div>`;
+    }
+
+    async function addHotel(id) {
+      const hotel = currentHotels.find(h => h.id === id);
+      if (!hotel) return;
+
+      const btn = document.getElementById('add-' + id);
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+
+      try {
+        const res = await fetch('/api/hotels/discover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hotels: [hotel] })
+        });
+
+        if (res.ok) {
+          const card = document.getElementById('card-' + id);
+          card.classList.add('added');
+          btn.textContent = 'Added';
+
+          // Remove from current list
+          currentHotels = currentHotels.filter(h => h.id !== id);
+          updateMeta();
+        } else {
+          btn.textContent = 'Failed';
+          btn.disabled = false;
+        }
+      } catch {
+        btn.textContent = 'Error';
+        btn.disabled = false;
+      }
+    }
+
+    function dismissCard(id) {
+      const card = document.getElementById('card-' + id);
+      if (card) {
+        card.style.transition = 'opacity 0.3s';
+        card.style.opacity = '0';
+        setTimeout(() => card.remove(), 300);
+      }
+      currentHotels = currentHotels.filter(h => h.id !== id);
+      updateMeta();
+    }
+
+    async function addAll() {
+      if (currentHotels.length === 0) return;
+
+      const btn = document.getElementById('addAllBtn');
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+
+      try {
+        const res = await fetch('/api/hotels/discover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hotels: currentHotels })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          btn.textContent = `Added ${data.added} hotels`;
+          // Mark all cards
+          currentHotels.forEach(h => {
+            const card = document.getElementById('card-' + h.id);
+            if (card) card.classList.add('added');
+            const addBtn = document.getElementById('add-' + h.id);
+            if (addBtn) { addBtn.textContent = 'Added'; addBtn.disabled = true; }
+          });
+          currentHotels = [];
+        }
+      } catch {
+        btn.textContent = 'Error';
+        btn.disabled = false;
+      }
+    }
+
+    function updateMeta() {
+      const remaining = currentHotels.length;
+      document.getElementById('resultsMeta').textContent = `${remaining} hotel${remaining !== 1 ? 's' : ''} remaining`;
+      if (remaining === 0) {
+        document.getElementById('addAllBtn').style.display = 'none';
+      }
+    }
+
+    // Region select clears custom input and vice versa
+    document.getElementById('regionSelect').addEventListener('change', () => {
+      document.getElementById('customRegion').value = '';
+    });
+    document.getElementById('customRegion').addEventListener('input', () => {
+      document.getElementById('regionSelect').value = '';
+    });
+
+    // Enter key on custom input
+    document.getElementById('customRegion').addEventListener('keydown', e => {
+      if (e.key === 'Enter') runQuickScan();
+    });
+
+    loadRegions();
+  </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Researcher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-brand">Hotel Researcher</div>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+    <div class="nav-links">
+      <a href="/" class="nav-link active">Dashboard</a>
+      <a href="/discover.html" class="nav-link">Discover</a>
+      <a href="/map.html" class="nav-link">Map</a>
+      <a href="/outreach.html" class="nav-link">Outreach</a>
+    </div>
+  </nav>
+
+  <div class="dashboard-header">
+    <h1>Hotel Researcher</h1>
+    <p class="subtitle">Luxury Hotel Discovery & Outreach</p>
+  </div>
+
+  <section class="stats-bar" id="stats-bar">
+    <div class="stat-card">
+      <span class="stat-label">Hotels Discovered</span>
+      <span class="stat-value" id="stat-total">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Avg Price</span>
+      <span class="stat-value" id="stat-avg-price">$0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Avg Rating</span>
+      <span class="stat-value" id="stat-avg-rating">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Contacted</span>
+      <span class="stat-value" id="stat-contacted">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Responded</span>
+      <span class="stat-value" id="stat-responded">0</span>
+    </div>
+  </section>
+
+  <section class="filter-bar" id="filter-bar">
+    <button class="filter-pill active" data-region="">All Hotels</button>
+    <div class="filter-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="search-input" placeholder="Search hotels...">
+    </div>
+    <select class="filter-sort" id="sort-select">
+      <option value="rating-desc">Top Rated</option>
+      <option value="price-asc">Price (Low-High)</option>
+      <option value="price-desc">Price (High-Low)</option>
+      <option value="name-asc">Name A-Z</option>
+    </select>
+    <button class="btn btn-primary btn-sm" id="btn-add">+ Add Hotel</button>
+  </section>
+  <!-- Hidden elements for JS compatibility -->
+  <div style="display:none">
+    <button id="btn-import"></button>
+    <button id="btn-export"></button>
+  </div>
+
+  <section class="cards-grid" id="cards-grid"></section>
+
+  <div class="empty-state" id="empty-state" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="48" height="48">
+      <path d="M3 21h18M5 21V7l8-4 8 4v14M9 21v-6h6v6"/>
+    </svg>
+    <p>No hotels found</p>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Add Hotel</h2>
+        <button class="modal-close" id="modal-close">&times;</button>
+      </div>
+      <form id="hotel-form" class="modal-body">
+        <input type="hidden" id="form-id">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="form-name">Hotel Name *</label>
+            <input type="text" id="form-name" required>
+          </div>
+          <div class="form-group">
+            <label for="form-location">Location</label>
+            <input type="text" id="form-location" placeholder="City, Country">
+          </div>
+          <div class="form-group">
+            <label for="form-region">Region</label>
+            <input type="text" id="form-region" placeholder="e.g. Los Cabos">
+          </div>
+          <div class="form-group">
+            <label for="form-price">Avg Price Per Night</label>
+            <input type="text" id="form-price" placeholder="e.g. $800-$1,500+">
+          </div>
+          <div class="form-group">
+            <label for="form-rating">Rating (/10)</label>
+            <input type="number" id="form-rating" min="0" max="11" step="0.1">
+          </div>
+          <div class="form-group">
+            <label for="form-address">Address</label>
+            <input type="text" id="form-address">
+          </div>
+          <div class="form-group">
+            <label for="form-phone">Phone</label>
+            <input type="text" id="form-phone">
+          </div>
+          <div class="form-group">
+            <label for="form-email">Email</label>
+            <input type="email" id="form-email">
+          </div>
+          <div class="form-group">
+            <label for="form-instagram">Instagram</label>
+            <input type="text" id="form-instagram" placeholder="@handle">
+          </div>
+          <div class="form-group">
+            <label for="form-contact-person">Contact Person</label>
+            <input type="text" id="form-contact-person">
+          </div>
+          <div class="form-group">
+            <label for="form-contact-position">Contact Position</label>
+            <input type="text" id="form-contact-position">
+          </div>
+          <div class="form-group">
+            <label for="form-website">Website</label>
+            <input type="text" id="form-website">
+          </div>
+          <div class="form-group full-width">
+            <label for="form-notes">Notes</label>
+            <textarea id="form-notes" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" id="btn-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Hotel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div class="modal-overlay" id="import-overlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Import CSV</h2>
+        <button class="modal-close" id="import-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="import-hint">Select a CSV file with hotel data.</p>
+        <input type="file" id="csv-file" accept=".csv">
+        <div class="form-actions">
+          <button class="btn btn-outline" id="import-cancel">Cancel</button>
+          <button class="btn btn-primary" id="import-submit">Import</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Composer Modal -->
+  <div class="modal-overlay" id="email-overlay">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>Draft Outreach Email</h2>
+        <button class="modal-close" id="email-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="email-hotel-id">
+        <div class="email-field">
+          <label for="email-to">To</label>
+          <input type="email" id="email-to">
+        </div>
+        <div class="email-field">
+          <label for="email-subject">Subject</label>
+          <input type="text" id="email-subject">
+        </div>
+        <div class="email-field">
+          <label for="email-body">Body</label>
+          <textarea id="email-body"></textarea>
+        </div>
+        <div class="email-actions">
+          <button class="btn btn-copy" id="email-copy">Copy to Clipboard</button>
+          <button class="btn btn-gmail" id="email-gmail">Open in Gmail</button>
+          <button class="btn btn-mark-contacted" id="email-mark-contacted">Mark as Contacted</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map View - Hotel Researcher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <style>
+    #map-container {
+      position: relative;
+      flex: 1;
+      display: flex;
+    }
+
+    #map {
+      flex: 1;
+      min-height: calc(100vh - 56px);
+      z-index: 1;
+    }
+
+    /* Override Leaflet cluster styles for dark theme */
+    .marker-cluster-small {
+      background-color: rgba(46, 163, 242, 0.3);
+    }
+    .marker-cluster-small div {
+      background-color: rgba(46, 163, 242, 0.6);
+      color: #fff;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 600;
+    }
+    .marker-cluster-medium {
+      background-color: rgba(46, 163, 242, 0.4);
+    }
+    .marker-cluster-medium div {
+      background-color: rgba(46, 163, 242, 0.7);
+      color: #fff;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 600;
+    }
+    .marker-cluster-large {
+      background-color: rgba(46, 163, 242, 0.5);
+    }
+    .marker-cluster-large div {
+      background-color: rgba(46, 163, 242, 0.8);
+      color: #fff;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 600;
+    }
+
+    /* Filter panel */
+    .map-filter-panel {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      padding: 16px;
+      width: 260px;
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    .map-filter-panel h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #2ea3f2;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .map-filter-group {
+      margin-bottom: 10px;
+    }
+
+    .map-filter-group label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #999;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .map-filter-group select,
+    .map-filter-group input {
+      width: 100%;
+      background: #141414;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      font-family: inherit;
+    }
+
+    .map-filter-group select:focus,
+    .map-filter-group input:focus {
+      outline: none;
+      border-color: #2ea3f2;
+    }
+
+    .map-price-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .map-price-row input {
+      flex: 1;
+      width: auto;
+    }
+
+    .map-filter-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 1001;
+      background: rgba(10, 10, 10, 0.9);
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      color: #999;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-family: 'Open Sans', sans-serif;
+      cursor: pointer;
+      display: none;
+    }
+
+    .map-filter-toggle:hover {
+      border-color: #2ea3f2;
+      color: #2ea3f2;
+    }
+
+    .map-filter-panel.collapsed {
+      display: none;
+    }
+
+    .map-filter-panel.collapsed + .map-filter-toggle {
+      display: block;
+    }
+
+    .filter-close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .filter-close-btn:hover {
+      color: #fff;
+    }
+
+    .map-legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #1a1a1a;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      color: #999;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* Popup styling */
+    .leaflet-popup-content-wrapper {
+      background: #141414;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    .leaflet-popup-tip {
+      background: #141414;
+      border: 1px solid #1a1a1a;
+    }
+
+    .leaflet-popup-close-button {
+      color: #999 !important;
+    }
+
+    .leaflet-popup-close-button:hover {
+      color: #fff !important;
+    }
+
+    .popup-hotel {
+      min-width: 200px;
+    }
+
+    .popup-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .popup-info {
+      font-size: 0.75rem;
+      color: #999;
+      margin-bottom: 3px;
+    }
+
+    .popup-info .stars {
+      color: #2ea3f2;
+      letter-spacing: 1px;
+    }
+
+    .popup-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .popup-btn {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .popup-btn-view {
+      background: transparent;
+      border: 1px solid #1a1a1a;
+      color: #999;
+    }
+
+    .popup-btn-view:hover {
+      border-color: #2ea3f2;
+      color: #2ea3f2;
+    }
+
+    .popup-btn-email {
+      background: #2ea3f2;
+      border: 1px solid #2ea3f2;
+      color: #fff;
+    }
+
+    .popup-btn-email:hover {
+      background: #1b8ad4;
+    }
+
+    /* Dark map tiles attribution */
+    .leaflet-control-attribution {
+      background: rgba(10, 10, 10, 0.7) !important;
+      color: #666 !important;
+      font-size: 0.6rem !important;
+    }
+
+    .leaflet-control-attribution a {
+      color: #999 !important;
+    }
+
+    .leaflet-control-zoom a {
+      background: #141414 !important;
+      border-color: #1a1a1a !important;
+      color: #999 !important;
+    }
+
+    .leaflet-control-zoom a:hover {
+      background: #1a1a1a !important;
+      color: #2ea3f2 !important;
+    }
+
+    @media (max-width: 900px) {
+      .map-filter-panel {
+        width: 220px;
+        padding: 12px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .map-filter-panel {
+        top: 8px;
+        right: 8px;
+        left: 8px;
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body style="overflow: hidden;">
+  <nav class="top-nav">
+    <div class="nav-brand">Hotel Researcher</div>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Dashboard</a>
+      <a href="/discover.html" class="nav-link">Discover</a>
+      <a href="/map.html" class="nav-link active">Map</a>
+      <a href="/outreach.html" class="nav-link">Outreach</a>
+    </div>
+  </nav>
+
+  <div id="map-container">
+    <div id="map"></div>
+
+    <div class="map-filter-panel" id="filter-panel">
+      <button class="filter-close-btn" id="filter-close">&times;</button>
+      <h3>Filters</h3>
+      <div class="map-filter-group">
+        <label>Region</label>
+        <select id="f-region">
+          <option value="">All Regions</option>
+        </select>
+      </div>
+      <div class="map-filter-group">
+        <label>Price Range</label>
+        <div class="map-price-row">
+          <input type="number" id="f-price-min" placeholder="Min $" min="0">
+          <input type="number" id="f-price-max" placeholder="Max $" min="0">
+        </div>
+      </div>
+      <div class="map-filter-group">
+        <label>Min Rating</label>
+        <select id="f-rating">
+          <option value="">Any</option>
+          <option value="7">7+</option>
+          <option value="8">8+</option>
+          <option value="9">9+</option>
+          <option value="10">10+</option>
+        </select>
+      </div>
+      <div class="map-filter-group">
+        <label>Outreach Status</label>
+        <select id="f-status">
+          <option value="">All</option>
+          <option value="not_contacted">Not Contacted</option>
+          <option value="contacted">Contacted</option>
+          <option value="responded">Responded</option>
+          <option value="approved">Approved</option>
+          <option value="booked">Booked</option>
+        </select>
+      </div>
+      <div class="map-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#888"></div>Not Contacted</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2ea3f2"></div>Contacted</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2ecc71"></div>Responded</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f39c12"></div>Approved</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div>Booked</div>
+      </div>
+    </div>
+    <button class="map-filter-toggle" id="filter-toggle">Filters</button>
+  </div>
+
+  <!-- Email Modal (reused from discover) -->
+  <div class="modal-overlay" id="email-overlay">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="email-modal-title">Draft Email</h2>
+        <button class="modal-close" id="email-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="email-field">
+          <label>To</label>
+          <input type="text" id="email-to" readonly>
+        </div>
+        <div class="email-field">
+          <label>Subject</label>
+          <input type="text" id="email-subject">
+        </div>
+        <div class="email-field">
+          <label>Body</label>
+          <textarea id="email-body"></textarea>
+        </div>
+        <div class="email-actions">
+          <button class="btn btn-copy" id="email-copy">Copy to Clipboard</button>
+          <a class="btn btn-gmail" id="email-gmail" target="_blank">Open in Gmail</a>
+          <button class="btn btn-outline" id="email-cancel">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    let allHotels = [];
+    let map, clusterGroup;
+
+    // --- Map Init ---
+    map = L.map('map', {
+      center: [23.6345, -102.5528],
+      zoom: 5,
+      zoomControl: true
+    });
+
+    // Dark tile layer (CartoDB Dark Matter - free, no key)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
+    clusterGroup = L.markerClusterGroup({
+      maxClusterRadius: 40,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      iconCreateFunction: function(cluster) {
+        const count = cluster.getChildCount();
+        let size = 'small';
+        if (count > 10) size = 'large';
+        else if (count > 5) size = 'medium';
+        return L.divIcon({
+          html: '<div>' + count + '</div>',
+          className: 'marker-cluster marker-cluster-' + size,
+          iconSize: L.point(40, 40)
+        });
+      }
+    });
+    map.addLayer(clusterGroup);
+
+    // --- Helpers ---
+    function getStage(h) {
+      const o = h.outreach || {};
+      if (o.bookedDates) return 'booked';
+      if (o.approved) return 'approved';
+      if (o.responded) return 'responded';
+      if (o.contacted) return 'contacted';
+      return 'not_contacted';
+    }
+
+    function parsePriceMin(str) {
+      if (!str) return 0;
+      const m = str.replace(/,/g, '').match(/\d+/);
+      return m ? parseInt(m[0], 10) : 0;
+    }
+
+    function stageColor(stage) {
+      switch(stage) {
+        case 'contacted': return '#2ea3f2';
+        case 'responded': return '#2ecc71';
+        case 'approved': return '#f39c12';
+        case 'booked': return '#a855f7';
+        default: return '#888';
+      }
+    }
+
+    function renderStars(rating) {
+      const r = Number(rating) || 0;
+      const full = Math.floor(Math.min(r, 5));
+      let s = '';
+      for (let i = 0; i < full; i++) s += '\u2605';
+      return s;
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    function createMarkerIcon(color) {
+      return L.divIcon({
+        className: '',
+        html: '<svg width="24" height="36" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg">' +
+          '<path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="' + color + '"/>' +
+          '<circle cx="12" cy="12" r="5" fill="rgba(0,0,0,0.3)"/>' +
+          '</svg>',
+        iconSize: [24, 36],
+        iconAnchor: [12, 36],
+        popupAnchor: [0, -36]
+      });
+    }
+
+    // --- Load & Render ---
+    async function loadHotels() {
+      const res = await fetch('/api/hotels');
+      const data = await res.json();
+      allHotels = data.hotels || data;
+      if (Array.isArray(data) && !data.hotels) allHotels = data;
+
+      // Normalize lon/lng
+      allHotels.forEach(h => {
+        if (!h.lng && h.lon) h.lng = h.lon;
+      });
+
+      // Populate region filter
+      const regions = [...new Set(allHotels.map(h => h.region).filter(Boolean))].sort();
+      const regionSelect = document.getElementById('f-region');
+      regions.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        regionSelect.appendChild(opt);
+      });
+
+      renderMarkers();
+
+      // Zoom to fit if hotels exist
+      if (allHotels.some(h => h.lat && h.lng)) {
+        const bounds = allHotels.filter(h => h.lat && h.lng).map(h => [h.lat, h.lng]);
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+      }
+    }
+
+    function getFiltered() {
+      const region = document.getElementById('f-region').value;
+      const pMin = document.getElementById('f-price-min').value ? Number(document.getElementById('f-price-min').value) : null;
+      const pMax = document.getElementById('f-price-max').value ? Number(document.getElementById('f-price-max').value) : null;
+      const rMin = document.getElementById('f-rating').value ? Number(document.getElementById('f-rating').value) : null;
+      const status = document.getElementById('f-status').value;
+
+      return allHotels.filter(h => {
+        if (!h.lat || !h.lng) return false;
+        if (region && h.region !== region) return false;
+        const price = parsePriceMin(h.avgPricePerNight);
+        if (pMin !== null && price < pMin) return false;
+        if (pMax !== null && price > pMax) return false;
+        const rating = Number(h.rating) || 0;
+        if (rMin !== null && rating < rMin) return false;
+        if (status && getStage(h) !== status) return false;
+        return true;
+      });
+    }
+
+    function renderMarkers() {
+      clusterGroup.clearLayers();
+      const filtered = getFiltered();
+
+      filtered.forEach(h => {
+        const stage = getStage(h);
+        const color = stageColor(stage);
+        const icon = createMarkerIcon(color);
+
+        const marker = L.marker([h.lat, h.lng], { icon });
+
+        const popupHtml = `
+          <div class="popup-hotel">
+            <div class="popup-name">${esc(h.name)}</div>
+            <div class="popup-info">${esc(h.location)} ${h.region ? '&middot; ' + esc(h.region) : ''}</div>
+            <div class="popup-info">${esc(h.avgPricePerNight || '-')} &middot; <span class="stars">${renderStars(h.rating)}</span> ${h.rating || '-'}</div>
+            <div class="popup-info">${esc(h.email || 'No email')}</div>
+            <div class="popup-actions">
+              <a href="hotel.html?id=${h.id}" class="popup-btn popup-btn-view">View Details</a>
+              <button class="popup-btn popup-btn-email" onclick="window._openEmailModal('${h.id}')">Draft Email</button>
+            </div>
+          </div>
+        `;
+
+        marker.bindPopup(popupHtml, { maxWidth: 280 });
+        clusterGroup.addLayer(marker);
+      });
+    }
+
+    // --- Email Modal ---
+    window._openEmailModal = function(id) {
+      const h = allHotels.find(x => x.id === id);
+      if (!h) return;
+      const email = h.contactEmail || h.email || '';
+      const subject = `Video Production Collaboration - ${h.name} x Amber Pacific Studios`;
+      const body = `Hi ${h.contactPerson || 'there'},\n\nMy name is Chris Stanley, founder of Amber Pacific Studios, a boutique video production company based in Vancouver. We specialize in cinematic, beautifully crafted video content designed to showcase luxury experiences at their best.\n\nI came across ${h.name} and was genuinely impressed by your property. I'd love to explore a potential collaboration where we produce high-end video content for ${h.name}.\n\nYou can view our portfolio here: https://amberpacificstudios.com\n\nWould you be open to a quick call or email exchange to discuss?\n\nBest,\nChris Stanley\nFounder, Amber Pacific Studios\nwww.amberpacificstudios.com\n@chrisstanleyhd`;
+
+      document.getElementById('email-to').value = email;
+      document.getElementById('email-subject').value = subject;
+      document.getElementById('email-body').value = body;
+      document.getElementById('email-modal-title').textContent = 'Draft Email - ' + h.name;
+
+      updateGmailLink();
+      document.getElementById('email-overlay').classList.add('active');
+    };
+
+    function updateGmailLink() {
+      const to = encodeURIComponent(document.getElementById('email-to').value);
+      const subject = encodeURIComponent(document.getElementById('email-subject').value);
+      const body = encodeURIComponent(document.getElementById('email-body').value);
+      document.getElementById('email-gmail').href = `https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`;
+    }
+
+    document.getElementById('email-close').addEventListener('click', () => {
+      document.getElementById('email-overlay').classList.remove('active');
+    });
+
+    document.getElementById('email-cancel').addEventListener('click', () => {
+      document.getElementById('email-overlay').classList.remove('active');
+    });
+
+    document.getElementById('email-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) document.getElementById('email-overlay').classList.remove('active');
+    });
+
+    document.getElementById('email-copy').addEventListener('click', () => {
+      const text = `To: ${document.getElementById('email-to').value}\nSubject: ${document.getElementById('email-subject').value}\n\n${document.getElementById('email-body').value}`;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('email-copy');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy to Clipboard'; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+
+    document.getElementById('email-subject').addEventListener('input', updateGmailLink);
+    document.getElementById('email-body').addEventListener('input', updateGmailLink);
+
+    // --- Filter events ---
+    ['f-region', 'f-rating', 'f-status'].forEach(id => {
+      document.getElementById(id).addEventListener('change', renderMarkers);
+    });
+
+    let priceTimer;
+    ['f-price-min', 'f-price-max'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        clearTimeout(priceTimer);
+        priceTimer = setTimeout(renderMarkers, 300);
+      });
+    });
+
+    // Filter panel toggle
+    document.getElementById('filter-close').addEventListener('click', () => {
+      document.getElementById('filter-panel').classList.add('collapsed');
+      document.getElementById('filter-toggle').style.display = 'block';
+    });
+
+    document.getElementById('filter-toggle').addEventListener('click', () => {
+      document.getElementById('filter-panel').classList.remove('collapsed');
+      document.getElementById('filter-toggle').style.display = 'none';
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('email-overlay').classList.remove('active');
+      }
+    });
+
+    loadHotels();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outreach Pipeline - Hotel Researcher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-brand">Hotel Researcher</div>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Dashboard</a>
+      <a href="/discover.html" class="nav-link">Discover</a>
+      <a href="/map.html" class="nav-link">Map</a>
+      <a href="/outreach.html" class="nav-link active">Outreach</a>
+    </div>
+  </nav>
+
+  <header>
+    <div class="header-content">
+      <h1>Outreach Pipeline</h1>
+      <div class="gold-line"></div>
+    </div>
+  </header>
+
+  <section class="pipeline-stats" id="pipeline-stats">
+    <div class="stat-card">
+      <span class="stat-label">Not Contacted</span>
+      <span class="stat-value" id="ps-not-contacted">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Contacted</span>
+      <span class="stat-value" id="ps-contacted">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Responded</span>
+      <span class="stat-value" id="ps-responded">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Approved</span>
+      <span class="stat-value" id="ps-approved">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Booked</span>
+      <span class="stat-value" id="ps-booked">0</span>
+    </div>
+  </section>
+
+  <section class="pipeline-board" id="pipeline-board">
+    <div class="pipeline-column" data-stage="not_contacted">
+      <div class="column-header">
+        <span class="column-dot" style="background:#888"></span>
+        <h3>Not Contacted</h3>
+        <span class="column-count" id="col-count-not_contacted">0</span>
+      </div>
+      <div class="column-cards" id="col-not_contacted"></div>
+    </div>
+    <div class="pipeline-column" data-stage="contacted">
+      <div class="column-header">
+        <span class="column-dot" style="background:#2ea3f2"></span>
+        <h3>Contacted</h3>
+        <span class="column-count" id="col-count-contacted">0</span>
+      </div>
+      <div class="column-cards" id="col-contacted"></div>
+    </div>
+    <div class="pipeline-column" data-stage="responded">
+      <div class="column-header">
+        <span class="column-dot" style="background:#2ecc71"></span>
+        <h3>Responded</h3>
+        <span class="column-count" id="col-count-responded">0</span>
+      </div>
+      <div class="column-cards" id="col-responded"></div>
+    </div>
+    <div class="pipeline-column" data-stage="approved">
+      <div class="column-header">
+        <span class="column-dot" style="background:#c9a94e"></span>
+        <h3>Approved</h3>
+        <span class="column-count" id="col-count-approved">0</span>
+      </div>
+      <div class="column-cards" id="col-approved"></div>
+    </div>
+    <div class="pipeline-column" data-stage="booked">
+      <div class="column-header">
+        <span class="column-dot" style="background:#a855f7"></span>
+        <h3>Booked</h3>
+        <span class="column-count" id="col-count-booked">0</span>
+      </div>
+      <div class="column-cards" id="col-booked"></div>
+    </div>
+  </section>
+
+  <script>
+  (function() {
+    'use strict';
+
+    let hotels = [];
+    let draggedId = null;
+
+    async function load() {
+      const res = await fetch('/api/hotels');
+      const data = await res.json();
+      hotels = data.hotels || data;
+      if (Array.isArray(data)) hotels = data;
+      render();
+    }
+
+    function getStage(h) {
+      const o = h.outreach || {};
+      if (o.bookedDates) return 'booked';
+      if (o.approved) return 'approved';
+      if (o.responded) return 'responded';
+      if (o.contacted) return 'contacted';
+      return 'not_contacted';
+    }
+
+    function getLastAction(h) {
+      if (h.timeline && h.timeline.length > 0) return formatDate(h.timeline[0].date);
+      return formatDate(h.updatedAt);
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '-';
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      return name.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+    }
+
+    const PEXELS_IDS = [261102, 338504, 189296, 258154, 1134176, 2507010, 2034335, 1268871, 2373201, 1457842, 2029722, 3155666, 2462015, 1743231, 2417842, 2029731, 3225531, 2404843, 1488327, 2096983];
+    function getPexelsUrl(name) {
+      let hash = 0;
+      const n = (name || '').toLowerCase();
+      for (let i = 0; i < n.length; i++) { hash = ((hash << 5) - hash) + n.charCodeAt(i); hash = hash & hash; }
+      const idx = Math.abs(hash) % PEXELS_IDS.length;
+      const id = PEXELS_IDS[idx];
+      return 'https://images.pexels.com/photos/' + id + '/pexels-photo-' + id + '.jpeg?auto=compress&cs=tinysrgb&w=800';
+    }
+
+    function getThumbUrl(h) {
+      return h.imageUrl || getPexelsUrl(h.name);
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    function render() {
+      const stages = { not_contacted: [], contacted: [], responded: [], approved: [], booked: [] };
+      hotels.forEach(h => { stages[getStage(h)].push(h); });
+
+      Object.keys(stages).forEach(stage => {
+        const container = document.getElementById('col-' + stage);
+        const count = document.getElementById('col-count-' + stage);
+        const statEl = document.getElementById('ps-' + stage.replace('_', '-'));
+        count.textContent = stages[stage].length;
+        if (statEl) statEl.textContent = stages[stage].length;
+
+        container.innerHTML = stages[stage].map(h => `
+          <div class="pipeline-card" draggable="true" data-id="${h.id}">
+            <div class="pipeline-thumb">
+              <img src="${getThumbUrl(h)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div class="pipeline-thumb-initials" style="display:none">${esc(getInitials(h.name))}</div>
+            </div>
+            <div class="pipeline-info">
+              <div class="card-name-pipe">${esc(h.name)}</div>
+              <div class="card-contact">${esc(h.contactPerson || h.contact_person || '')}</div>
+              <div class="card-date">${getLastAction(h)}</div>
+              <div class="card-actions-pipe">
+                ${stage !== 'not_contacted' ? '<button class="card-btn card-btn-prev" data-id="' + h.id + '" data-dir="prev">&larr;</button>' : ''}
+                <a href="hotel.html?id=${h.id}" class="card-btn">View</a>
+                ${stage !== 'booked' ? '<button class="card-btn card-btn-next" data-id="' + h.id + '" data-dir="next">&rarr;</button>' : ''}
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        // Drag events
+        container.querySelectorAll('.pipeline-card').forEach(card => {
+          card.addEventListener('dragstart', e => {
+            draggedId = card.dataset.id;
+            card.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+          });
+          card.addEventListener('dragend', () => {
+            card.classList.remove('dragging');
+            draggedId = null;
+            document.querySelectorAll('.pipeline-column').forEach(c => c.classList.remove('drag-over'));
+          });
+        });
+
+        // Move buttons
+        container.querySelectorAll('.card-btn-prev, .card-btn-next').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            moveCard(btn.dataset.id, btn.dataset.dir);
+          });
+        });
+      });
+
+      // Drop zones
+      document.querySelectorAll('.pipeline-column').forEach(col => {
+        col.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; col.classList.add('drag-over'); });
+        col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+        col.addEventListener('drop', e => {
+          e.preventDefault();
+          col.classList.remove('drag-over');
+          if (draggedId) moveToStage(draggedId, col.dataset.stage);
+        });
+      });
+    }
+
+    const stageOrder = ['not_contacted', 'contacted', 'responded', 'approved', 'booked'];
+
+    function moveCard(id, dir) {
+      const h = hotels.find(x => x.id === id);
+      if (!h) return;
+      const idx = stageOrder.indexOf(getStage(h));
+      const newIdx = dir === 'next' ? idx + 1 : idx - 1;
+      if (newIdx < 0 || newIdx >= stageOrder.length) return;
+      moveToStage(id, stageOrder[newIdx]);
+    }
+
+    async function moveToStage(id, stage) {
+      const outreach = {
+        contacted: ['contacted','responded','approved','booked'].includes(stage),
+        responded: ['responded','approved','booked'].includes(stage),
+        approved: ['approved','booked'].includes(stage),
+        bookedDates: stage === 'booked' ? 'TBD' : ''
+      };
+      await fetch('/api/hotels/' + id + '/outreach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(outreach)
+      });
+      const actionMap = {
+        not_contacted: 'Reset to Not Contacted',
+        contacted: 'Marked as Contacted',
+        responded: 'Marked as Responded',
+        approved: 'Marked as Approved',
+        booked: 'Marked as Booked'
+      };
+      await fetch('/api/hotels/' + id + '/timeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: actionMap[stage], note: '' })
+      });
+      await load();
+    }
+
+    load();
+  })();
+  </script>
+</body>
+</html>

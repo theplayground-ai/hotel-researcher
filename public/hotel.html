@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Profile - Hotel Researcher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-brand">Hotel Researcher</div>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Dashboard</a>
+      <a href="/discover.html" class="nav-link">Discover</a>
+      <a href="/map.html" class="nav-link">Map</a>
+      <a href="/outreach.html" class="nav-link">Outreach</a>
+    </div>
+  </nav>
+
+  <!-- Hero Image -->
+  <div class="hero-wrap" id="hero-wrap">
+    <div class="hero-initials" id="hero-fallback"></div>
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
+      <h1 id="hotel-name">Loading...</h1>
+      <p class="hotel-subtitle" id="hotel-location"></p>
+    </div>
+  </div>
+
+  <div class="hotel-detail-page" id="hotel-page">
+    <!-- Quick Action Buttons -->
+    <section class="quick-actions" id="quick-actions">
+      <button class="btn btn-primary btn-sm" id="btn-draft-email-detail">&#9993; Draft Email</button>
+      <button class="btn btn-outline btn-sm" data-action="contacted">Mark Contacted</button>
+      <button class="btn btn-outline btn-sm" data-action="responded">Mark Responded</button>
+      <button class="btn btn-outline btn-sm" data-action="approved">Mark Approved</button>
+      <button class="btn btn-gold btn-sm" data-action="booked">Mark Booked</button>
+      <a class="btn btn-outline btn-sm" id="btn-website" href="#" target="_blank">Visit Website</a>
+      <a class="btn btn-outline btn-sm" id="btn-instagram" href="#" target="_blank">Instagram</a>
+      <span class="status-pill" id="hotel-status" style="margin-left:auto;"></span>
+    </section>
+
+    <!-- Hotel Profile -->
+    <div class="hotel-profile-grid">
+      <section class="profile-section">
+        <h3>Hotel Information</h3>
+        <div class="profile-fields">
+          <div class="detail-field"><span class="detail-label">Region</span><span class="detail-value" id="h-region">-</span></div>
+          <div class="detail-field"><span class="detail-label">Price/Night</span><span class="detail-value" id="h-price">-</span></div>
+          <div class="detail-field"><span class="detail-label">Rating</span><span class="detail-value" id="h-rating">-</span></div>
+          <div class="detail-field"><span class="detail-label">Address</span><span class="detail-value" id="h-address">-</span></div>
+          <div class="detail-field"><span class="detail-label">Phone</span><span class="detail-value" id="h-phone">-</span></div>
+          <div class="detail-field"><span class="detail-label">Email</span><span class="detail-value" id="h-email">-</span></div>
+        </div>
+      </section>
+
+      <section class="profile-section">
+        <h3>Contact & Links</h3>
+        <div class="profile-fields">
+          <div class="detail-field"><span class="detail-label">Contact Person</span><span class="detail-value" id="h-contact">-</span></div>
+          <div class="detail-field"><span class="detail-label">Position</span><span class="detail-value" id="h-position">-</span></div>
+          <div class="detail-field"><span class="detail-label">Contact Email</span><span class="detail-value" id="h-contact-email">-</span></div>
+        </div>
+        <div class="profile-links" id="profile-links"></div>
+      </section>
+    </div>
+
+    <!-- Notes Section -->
+    <section class="profile-section notes-section">
+      <h3>Notes</h3>
+      <textarea class="notes-editor" id="notes-editor" placeholder="Add notes about this hotel..."></textarea>
+      <div class="notes-status" id="notes-status">Saved</div>
+    </section>
+
+    <!-- Outreach Timeline -->
+    <section class="profile-section timeline-section">
+      <div class="timeline-header">
+        <h3>Outreach Timeline</h3>
+        <button class="btn btn-outline btn-sm" id="btn-add-entry">+ Add Entry</button>
+      </div>
+      <div class="timeline-form" id="timeline-form" style="display:none">
+        <select id="tl-action">
+          <option value="Email Sent">Email Sent</option>
+          <option value="Follow-up Sent">Follow-up Sent</option>
+          <option value="Call Made">Call Made</option>
+          <option value="Response Received">Response Received</option>
+          <option value="Meeting Scheduled">Meeting Scheduled</option>
+          <option value="Proposal Sent">Proposal Sent</option>
+          <option value="Deal Approved">Deal Approved</option>
+          <option value="Dates Booked">Dates Booked</option>
+          <option value="Note">Note</option>
+        </select>
+        <input type="text" id="tl-note" placeholder="Add a note...">
+        <button class="btn btn-primary btn-sm" id="tl-submit">Add</button>
+        <button class="btn btn-outline btn-sm" id="tl-cancel">Cancel</button>
+      </div>
+      <div class="timeline-list" id="timeline-list">
+        <p class="text-dim">No timeline entries yet</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Email Composer Modal -->
+  <div class="modal-overlay" id="email-overlay">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>Draft Outreach Email</h2>
+        <button class="modal-close" id="email-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="email-field">
+          <label for="email-to">To</label>
+          <input type="email" id="email-to">
+        </div>
+        <div class="email-field">
+          <label for="email-subject">Subject</label>
+          <input type="text" id="email-subject">
+        </div>
+        <div class="email-field">
+          <label for="email-body">Body</label>
+          <textarea id="email-body"></textarea>
+        </div>
+        <div class="email-actions">
+          <button class="btn btn-copy" id="email-copy">Copy to Clipboard</button>
+          <button class="btn btn-gmail" id="email-gmail">Open in Gmail</button>
+          <button class="btn btn-mark-contacted" id="email-mark-contacted">Mark as Contacted</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+
+    const params = new URLSearchParams(window.location.search);
+    const hotelId = params.get('id');
+    if (!hotelId) {
+      document.getElementById('hotel-name').textContent = 'Hotel not found';
+      return;
+    }
+
+    let hotel = null;
+    let saveTimer = null;
+
+    const PEXELS_IDS = [261102, 338504, 189296, 258154, 1134176, 2507010, 2034335, 1268871, 2373201, 1457842, 2029722, 3155666, 2462015, 1743231, 2417842, 2029731, 3225531, 2404843, 1488327, 2096983];
+    function getPexelsUrl(name) {
+      let hash = 0;
+      const n = (name || '').toLowerCase();
+      for (let i = 0; i < n.length; i++) { hash = ((hash << 5) - hash) + n.charCodeAt(i); hash = hash & hash; }
+      const idx = Math.abs(hash) % PEXELS_IDS.length;
+      const id = PEXELS_IDS[idx];
+      return 'https://images.pexels.com/photos/' + id + '/pexels-photo-' + id + '.jpeg?auto=compress&cs=tinysrgb&w=800';
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    function getStage(h) {
+      const o = h.outreach || {};
+      if (o.bookedDates) return 'booked';
+      if (o.approved) return 'approved';
+      if (o.responded) return 'responded';
+      if (o.contacted) return 'contacted';
+      return 'not_contacted';
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      return name.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 3).join('').toUpperCase();
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatTime(iso) {
+      if (!iso) return '';
+      return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    async function loadHotel() {
+      const res = await fetch('/api/hotels/' + hotelId);
+      if (!res.ok) {
+        document.getElementById('hotel-name').textContent = 'Hotel not found';
+        return;
+      }
+      hotel = await res.json();
+      renderProfile();
+      loadTimeline();
+    }
+
+    function renderProfile() {
+      const h = hotel;
+      document.title = h.name + ' - Hotel Researcher';
+      document.getElementById('hotel-name').textContent = h.name;
+      document.getElementById('hotel-location').textContent = '\uD83D\uDCCD ' + (h.location || h.region || '');
+
+      // Hero image
+      const heroWrap = document.getElementById('hero-wrap');
+      const fallback = document.getElementById('hero-fallback');
+      fallback.textContent = getInitials(h.name);
+
+      const imgUrl = h.imageUrl || getPexelsUrl(h.name);
+      const img = document.createElement('img');
+      img.className = 'hero-img';
+      img.src = imgUrl;
+      img.alt = h.name;
+      img.onerror = function() { this.remove(); };
+      heroWrap.insertBefore(img, heroWrap.firstChild);
+
+      const stage = getStage(h);
+      const statusEl = document.getElementById('hotel-status');
+      statusEl.textContent = stage.replace(/_/g, ' ');
+      statusEl.className = 'status-pill status-' + stage;
+
+      document.getElementById('h-region').textContent = h.region || '-';
+      document.getElementById('h-price').textContent = h.avgPricePerNight || '-';
+      document.getElementById('h-rating').textContent = h.rating ? h.rating + '/10' : '-';
+      document.getElementById('h-address').textContent = h.address || '-';
+      document.getElementById('h-phone').textContent = h.phone || '-';
+
+      const emailEl = document.getElementById('h-email');
+      if (h.email) {
+        emailEl.innerHTML = '<a href="mailto:' + esc(h.email) + '">' + esc(h.email) + '</a>';
+      } else {
+        emailEl.textContent = '-';
+      }
+
+      document.getElementById('h-contact').textContent = h.contactPerson || '-';
+      document.getElementById('h-position').textContent = h.contactPosition || '-';
+      document.getElementById('h-contact-email').textContent = h.contactEmail || '-';
+
+      // Links
+      const linksEl = document.getElementById('profile-links');
+      const links = [];
+      if (h.website) links.push('<a href="' + (h.website.startsWith('http') ? h.website : 'https://' + h.website) + '" target="_blank" class="profile-link">Website</a>');
+      if (h.instagram) links.push('<a href="https://instagram.com/' + h.instagram.replace('@','') + '" target="_blank" class="profile-link">Instagram ' + esc(h.instagram) + '</a>');
+      if (h.contactLinkedIn) links.push('<a href="' + h.contactLinkedIn + '" target="_blank" class="profile-link">LinkedIn</a>');
+      linksEl.innerHTML = links.join('') || '<span class="text-dim">No links available</span>';
+
+      // Website/Instagram buttons
+      const websiteBtn = document.getElementById('btn-website');
+      const igBtn = document.getElementById('btn-instagram');
+      if (h.website) {
+        websiteBtn.href = h.website.startsWith('http') ? h.website : 'https://' + h.website;
+        websiteBtn.style.display = '';
+      } else {
+        websiteBtn.style.display = 'none';
+      }
+      if (h.instagram) {
+        igBtn.href = 'https://instagram.com/' + h.instagram.replace('@','');
+        igBtn.style.display = '';
+      } else {
+        igBtn.style.display = 'none';
+      }
+
+      // Notes
+      document.getElementById('notes-editor').value = h.notes || '';
+
+      // Highlight active stage
+      document.querySelectorAll('#quick-actions button[data-action]').forEach(btn => {
+        btn.classList.toggle('btn-active', btn.dataset.action === stage);
+      });
+    }
+
+    async function loadTimeline() {
+      const res = await fetch('/api/hotels/' + hotelId + '/timeline');
+      const timeline = await res.json();
+      const container = document.getElementById('timeline-list');
+
+      if (!timeline.length) {
+        container.innerHTML = '<p class="text-dim">No timeline entries yet</p>';
+        return;
+      }
+
+      container.innerHTML = timeline.map(entry => `
+        <div class="timeline-entry">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="timeline-action">${esc(entry.action)}</div>
+            ${entry.note ? '<div class="timeline-note">' + esc(entry.note) + '</div>' : ''}
+            <div class="timeline-date">${formatDate(entry.date)} ${formatTime(entry.date)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Quick actions
+    document.querySelectorAll('#quick-actions button[data-action]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const stage = btn.dataset.action;
+        const outreach = {
+          contacted: ['contacted','responded','approved','booked'].includes(stage),
+          responded: ['responded','approved','booked'].includes(stage),
+          approved: ['approved','booked'].includes(stage),
+          bookedDates: stage === 'booked' ? 'TBD' : ''
+        };
+        await fetch('/api/hotels/' + hotelId + '/outreach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(outreach)
+        });
+        const actionMap = { contacted: 'Marked as Contacted', responded: 'Marked as Responded', approved: 'Marked as Approved', booked: 'Marked as Booked' };
+        await fetch('/api/hotels/' + hotelId + '/timeline', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: actionMap[stage], note: '' })
+        });
+        await loadHotel();
+      });
+    });
+
+    // Notes auto-save
+    document.getElementById('notes-editor').addEventListener('input', () => {
+      const statusEl = document.getElementById('notes-status');
+      statusEl.textContent = 'Saving...';
+      statusEl.className = 'notes-status saving';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(async () => {
+        await fetch('/api/hotels/' + hotelId, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes: document.getElementById('notes-editor').value })
+        });
+        statusEl.textContent = 'Saved';
+        statusEl.className = 'notes-status saved';
+      }, 800);
+    });
+
+    // Timeline form
+    document.getElementById('btn-add-entry').addEventListener('click', () => {
+      document.getElementById('timeline-form').style.display = 'flex';
+    });
+    document.getElementById('tl-cancel').addEventListener('click', () => {
+      document.getElementById('timeline-form').style.display = 'none';
+    });
+    document.getElementById('tl-submit').addEventListener('click', async () => {
+      const action = document.getElementById('tl-action').value;
+      const note = document.getElementById('tl-note').value;
+      await fetch('/api/hotels/' + hotelId + '/timeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, note })
+      });
+      document.getElementById('tl-note').value = '';
+      document.getElementById('timeline-form').style.display = 'none';
+      loadTimeline();
+    });
+
+    // Email Composer
+    function generateEmail(h) {
+      const contactName = h.contactPerson || 'the team at ' + h.name;
+      const subject = 'Video Production Collaboration - ' + h.name + ' x Amber Pacific Studios';
+      let body = 'Hi ' + contactName + ',\n\nMy name is Chris Stanley, founder of Amber Pacific Studios, a boutique video production company based in Vancouver. We specialize in cinematic, beautifully crafted video content designed to showcase luxury experiences at their best.\n\nI came across ' + h.name + ' and was genuinely impressed by your property in ' + (h.location || '') + '. The level of detail and atmosphere you\'ve created is exactly the kind of setting that translates beautifully on camera.\n\nI\'d love to explore a potential collaboration where we produce high-end video content for ' + h.name + ', whether that\'s for your website, social channels, or marketing campaigns.\n\nYou can view our portfolio here: https://amberpacificstudios.com\n\n';
+      if ((h.region || '').toLowerCase().includes('cabo')) {
+        body += 'I recently spent time filming in the Cabo region and would love to bring that same cinematic perspective to ' + h.name + '.\n\n';
+      }
+      body += 'Would you be open to a quick call or email exchange to discuss?\n\nBest,\nChris Stanley\nFounder, Amber Pacific Studios\nwww.amberpacificstudios.com\n@chrisstanleyhd';
+      return { to: h.email || h.contactEmail || '', subject, body };
+    }
+
+    document.getElementById('btn-draft-email-detail').addEventListener('click', () => {
+      if (!hotel) return;
+      const email = generateEmail(hotel);
+      document.getElementById('email-to').value = email.to;
+      document.getElementById('email-subject').value = email.subject;
+      document.getElementById('email-body').value = email.body;
+      document.getElementById('email-overlay').classList.add('active');
+      document.getElementById('email-copy').textContent = 'Copy to Clipboard';
+      document.getElementById('email-copy').classList.remove('copied');
+      document.getElementById('email-mark-contacted').textContent = 'Mark as Contacted';
+      document.getElementById('email-mark-contacted').classList.remove('marked');
+    });
+
+    document.getElementById('email-close').addEventListener('click', () => document.getElementById('email-overlay').classList.remove('active'));
+    document.getElementById('email-overlay').addEventListener('click', e => { if (e.target.id === 'email-overlay') e.target.classList.remove('active'); });
+
+    document.getElementById('email-copy').addEventListener('click', () => {
+      const full = 'Subject: ' + document.getElementById('email-subject').value + '\n\n' + document.getElementById('email-body').value;
+      navigator.clipboard.writeText(full).then(() => {
+        const btn = document.getElementById('email-copy');
+        btn.classList.add('copied');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copy to Clipboard'; }, 2000);
+      });
+    });
+
+    document.getElementById('email-gmail').addEventListener('click', () => {
+      const to = document.getElementById('email-to').value;
+      const subject = document.getElementById('email-subject').value;
+      const body = document.getElementById('email-body').value;
+      window.open('mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body), '_blank');
+    });
+
+    document.getElementById('email-mark-contacted').addEventListener('click', async () => {
+      const markBtn = document.getElementById('email-mark-contacted');
+      if (markBtn.classList.contains('marked')) return;
+      await fetch('/api/hotels/' + hotelId + '/outreach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contacted: true })
+      });
+      const to = document.getElementById('email-to').value;
+      const subject = document.getElementById('email-subject').value;
+      await fetch('/api/hotels/' + hotelId + '/timeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'Email Sent', note: 'Outreach to ' + to + ' - ' + subject })
+      });
+      markBtn.classList.add('marked');
+      markBtn.textContent = 'Contacted';
+      await loadHotel();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.getElementById('email-overlay').classList.remove('active');
+    });
+
+    loadHotel();
+  })();
+  </script>
+</body>
+</html>

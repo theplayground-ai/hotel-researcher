@@ -1,0 +1,17 @@
+{
+  "name": "hotel-researcher",
+  "version": "1.0.0",
+  "description": "Luxury hotel researcher dashboard for Chris - Los Cabos",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "csv-parse": "^5.5.3",
+    "csv-stringify": "^6.4.5",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0"
+  }
+}
