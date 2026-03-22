@@ -7,7 +7,7 @@
 
   const STORAGE_KEY = 'hotel-researcher-db';
   const VERSION_KEY = 'hotel-researcher-version';
-  const DATA_VERSION = '4';
+  const DATA_VERSION = '5';
 
   let _hotels = null;
   let _regions = null;
