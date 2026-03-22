@@ -5,7 +5,7 @@
 
   let hotels = [];
   let allHotels = [];
-  let sortKey = 'name-asc';
+  let sortKey = 'rating-desc';
   let activeRegion = '';
   let searchQuery = '';
   let favorites = JSON.parse(localStorage.getItem('hotel-favorites') || '[]');
