@@ -23,6 +23,25 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json());
 
+// --- Demo Mode Middleware ---
+// When DEMO_MODE=true, all write operations (POST/PUT/DELETE) return success without saving
+const DEMO_MODE = process.env.DEMO_MODE === 'true';
+
+if (DEMO_MODE) {
+  console.log('🎭 Running in DEMO MODE - all changes are sandboxed (nothing saves)');
+}
+
+function demoGuard(req, res, next) {
+  if (DEMO_MODE && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    // Return a fake success response so the UI behaves normally
+    return res.json({ success: true, demo: true, message: 'Demo mode - changes not saved' });
+  }
+  next();
+}
+
+// Apply demo guard to all /api routes
+app.use('/api', demoGuard);
+
 // Ensure data dir exists
 if (!fs.existsSync(path.join(__dirname, 'data'))) {
   fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });

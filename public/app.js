@@ -162,9 +162,13 @@
       );
     }
 
-    // Sort
+    // Sort — featured hotels always pin to top
     const [key, dir] = sortKey.split('-');
     filtered.sort((a, b) => {
+      const fa = a.featured ? 1 : 0;
+      const fb = b.featured ? 1 : 0;
+      if (fa !== fb) return fb - fa;
+
       let va, vb;
       if (key === 'price') {
         va = parsePriceMin(a.avgPricePerNight);
