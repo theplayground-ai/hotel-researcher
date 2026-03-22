@@ -11,10 +11,10 @@
     <div class="nav-brand">Hotel Researcher</div>
     <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
     <div class="nav-links">
-      <a href="/" class="nav-link">Dashboard</a>
-      <a href="/discover.html" class="nav-link">Discover</a>
-      <a href="/map.html" class="nav-link">Map</a>
-      <a href="/outreach.html" class="nav-link active">Outreach</a>
+      <a href="index.html" class="nav-link">Dashboard</a>
+      <a href="discover.html" class="nav-link">Discover</a>
+      <a href="map.html" class="nav-link">Map</a>
+      <a href="outreach.html" class="nav-link active">Outreach</a>
     </div>
   </nav>
 
@@ -91,6 +91,7 @@
     </div>
   </section>
 
+  <script src="data.js"></script>
   <script>
   (function() {
     'use strict';
@@ -98,21 +99,13 @@
     let hotels = [];
     let draggedId = null;
 
-    async function load() {
-      const res = await fetch('/api/hotels');
-      const data = await res.json();
-      hotels = data.hotels || data;
-      if (Array.isArray(data)) hotels = data;
+    function load() {
+      hotels = HotelDB.getHotels();
       render();
     }
 
     function getStage(h) {
-      const o = h.outreach || {};
-      if (o.bookedDates) return 'booked';
-      if (o.approved) return 'approved';
-      if (o.responded) return 'responded';
-      if (o.contacted) return 'contacted';
-      return 'not_contacted';
+      return HotelDB.getStage(h);
     }
 
     function getLastAction(h) {
@@ -226,18 +219,14 @@
       moveToStage(id, stageOrder[newIdx]);
     }
 
-    async function moveToStage(id, stage) {
+    function moveToStage(id, stage) {
       const outreach = {
         contacted: ['contacted','responded','approved','booked'].includes(stage),
         responded: ['responded','approved','booked'].includes(stage),
         approved: ['approved','booked'].includes(stage),
         bookedDates: stage === 'booked' ? 'TBD' : ''
       };
-      await fetch('/api/hotels/' + id + '/outreach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(outreach)
-      });
+      HotelDB.updateOutreach(id, outreach);
       const actionMap = {
         not_contacted: 'Reset to Not Contacted',
         contacted: 'Marked as Contacted',
@@ -245,15 +234,13 @@
         approved: 'Marked as Approved',
         booked: 'Marked as Booked'
       };
-      await fetch('/api/hotels/' + id + '/timeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: actionMap[stage], note: '' })
-      });
-      await load();
+      HotelDB.addTimeline(id, { action: actionMap[stage], note: '' });
+      load();
     }
 
-    load();
+    HotelDB.ready(function() {
+      load();
+    });
   })();
   </script>
 </body>

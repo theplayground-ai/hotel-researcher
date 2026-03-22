@@ -316,10 +316,10 @@
     <div class="nav-brand">Hotel Researcher</div>
     <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
     <div class="nav-links">
-      <a href="/" class="nav-link">Dashboard</a>
-      <a href="/discover.html" class="nav-link">Discover</a>
-      <a href="/map.html" class="nav-link active">Map</a>
-      <a href="/outreach.html" class="nav-link">Outreach</a>
+      <a href="index.html" class="nav-link">Dashboard</a>
+      <a href="discover.html" class="nav-link">Discover</a>
+      <a href="map.html" class="nav-link active">Map</a>
+      <a href="outreach.html" class="nav-link">Outreach</a>
     </div>
   </nav>
 
@@ -403,6 +403,7 @@
     </div>
   </div>
 
+  <script src="data.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script>
@@ -446,12 +447,7 @@
 
     // --- Helpers ---
     function getStage(h) {
-      const o = h.outreach || {};
-      if (o.bookedDates) return 'booked';
-      if (o.approved) return 'approved';
-      if (o.responded) return 'responded';
-      if (o.contacted) return 'contacted';
-      return 'not_contacted';
+      return HotelDB.getStage(h);
     }
 
     function parsePriceMin(str) {
@@ -498,11 +494,8 @@
     }
 
     // --- Load & Render ---
-    async function loadHotels() {
-      const res = await fetch('/api/hotels');
-      const data = await res.json();
-      allHotels = data.hotels || data;
-      if (Array.isArray(data) && !data.hotels) allHotels = data;
+    function loadHotels() {
+      allHotels = HotelDB.getHotels();
 
       // Normalize lon/lng
       allHotels.forEach(h => {
@@ -657,7 +650,7 @@
       }
     });
 
-    loadHotels();
+    HotelDB.ready(loadHotels);
   })();
   </script>
 </body>

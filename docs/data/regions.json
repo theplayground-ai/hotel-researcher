@@ -1,0 +1,92 @@
+[
+  {
+    "id": "los-cabos",
+    "name": "Los Cabos",
+    "state": "Baja California Sur",
+    "country": "Mexico",
+    "overpassArea": "Baja California Sur",
+    "searchTerms": ["Los Cabos", "Cabo San Lucas", "San Jose del Cabo"],
+    "bbox": [-110.1, 22.85, -109.65, 23.2]
+  },
+  {
+    "id": "tulum",
+    "name": "Tulum",
+    "state": "Quintana Roo",
+    "country": "Mexico",
+    "overpassArea": "Quintana Roo",
+    "searchTerms": ["Tulum"],
+    "bbox": [-87.55, 20.15, -87.35, 20.3]
+  },
+  {
+    "id": "cancun",
+    "name": "Cancun / Riviera Maya",
+    "state": "Quintana Roo",
+    "country": "Mexico",
+    "overpassArea": "Quintana Roo",
+    "searchTerms": ["Cancun", "Riviera Maya"],
+    "bbox": [-87.1, 20.5, -86.7, 21.2]
+  },
+  {
+    "id": "puerto-vallarta",
+    "name": "Puerto Vallarta",
+    "state": "Jalisco",
+    "country": "Mexico",
+    "overpassArea": "Jalisco",
+    "searchTerms": ["Puerto Vallarta"],
+    "bbox": [-105.3, 20.55, -105.15, 20.72]
+  },
+  {
+    "id": "sayulita",
+    "name": "Sayulita",
+    "state": "Nayarit",
+    "country": "Mexico",
+    "overpassArea": "Nayarit",
+    "searchTerms": ["Sayulita"],
+    "bbox": [-105.45, 20.85, -105.35, 20.92]
+  },
+  {
+    "id": "mexico-city",
+    "name": "Mexico City",
+    "state": "Ciudad de México",
+    "country": "Mexico",
+    "overpassArea": "Ciudad de México",
+    "searchTerms": ["Mexico City", "CDMX"],
+    "bbox": [-99.25, 19.3, -99.05, 19.5]
+  },
+  {
+    "id": "oaxaca",
+    "name": "Oaxaca",
+    "state": "Oaxaca",
+    "country": "Mexico",
+    "overpassArea": "Oaxaca",
+    "searchTerms": ["Oaxaca"],
+    "bbox": [-96.78, 17.0, -96.68, 17.1]
+  },
+  {
+    "id": "san-miguel",
+    "name": "San Miguel de Allende",
+    "state": "Guanajuato",
+    "country": "Mexico",
+    "overpassArea": "Guanajuato",
+    "searchTerms": ["San Miguel de Allende"],
+    "bbox": [-100.78, 20.87, -100.7, 20.95]
+  },
+  {
+    "id": "punta-mita",
+    "name": "Punta Mita",
+    "state": "Nayarit",
+    "country": "Mexico",
+    "overpassArea": "Nayarit",
+    "searchTerms": ["Punta Mita", "Punta de Mita"],
+    "bbox": [-105.55, 20.73, -105.45, 20.8]
+  },
+  {
+    "id": "playa-del-carmen",
+    "name": "Playa del Carmen",
+    "state": "Quintana Roo",
+    "country": "Mexico",
+    "overpassArea": "Quintana Roo",
+    "searchTerms": ["Playa del Carmen"],
+    "bbox": [-87.12, 20.58, -87.04, 20.68]
+  }
+]

@@ -11,10 +11,10 @@
     <div class="nav-brand">Hotel Researcher</div>
     <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
     <div class="nav-links">
-      <a href="/" class="nav-link">Dashboard</a>
-      <a href="/discover.html" class="nav-link">Discover</a>
-      <a href="/map.html" class="nav-link">Map</a>
-      <a href="/outreach.html" class="nav-link">Outreach</a>
+      <a href="index.html" class="nav-link">Dashboard</a>
+      <a href="discover.html" class="nav-link">Discover</a>
+      <a href="map.html" class="nav-link">Map</a>
+      <a href="outreach.html" class="nav-link">Outreach</a>
     </div>
   </nav>
 
@@ -130,6 +130,7 @@
     </div>
   </div>
 
+  <script src="data.js"></script>
   <script>
   (function() {
     'use strict';
@@ -160,15 +161,6 @@
       return d.innerHTML;
     }
 
-    function getStage(h) {
-      const o = h.outreach || {};
-      if (o.bookedDates) return 'booked';
-      if (o.approved) return 'approved';
-      if (o.responded) return 'responded';
-      if (o.contacted) return 'contacted';
-      return 'not_contacted';
-    }
-
     function getInitials(name) {
       if (!name) return '?';
       return name.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 3).join('').toUpperCase();
@@ -184,13 +176,12 @@
       return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     }
 
-    async function loadHotel() {
-      const res = await fetch('/api/hotels/' + hotelId);
-      if (!res.ok) {
+    function loadHotel() {
+      hotel = HotelDB.getHotel(hotelId);
+      if (!hotel) {
         document.getElementById('hotel-name').textContent = 'Hotel not found';
         return;
       }
-      hotel = await res.json();
       renderProfile();
       loadTimeline();
     }
@@ -214,7 +205,7 @@
       img.onerror = function() { this.remove(); };
       heroWrap.insertBefore(img, heroWrap.firstChild);
 
-      const stage = getStage(h);
+      const stage = HotelDB.getStage(h);
       const statusEl = document.getElementById('hotel-status');
       statusEl.textContent = stage.replace(/_/g, ' ');
       statusEl.className = 'status-pill status-' + stage;
@@ -269,9 +260,8 @@
       });
     }
 
-    async function loadTimeline() {
-      const res = await fetch('/api/hotels/' + hotelId + '/timeline');
-      const timeline = await res.json();
+    function loadTimeline() {
+      const timeline = HotelDB.getTimeline(hotelId);
       const container = document.getElementById('timeline-list');
 
       if (!timeline.length) {
@@ -293,7 +283,7 @@
 
     // Quick actions
     document.querySelectorAll('#quick-actions button[data-action]').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         const stage = btn.dataset.action;
         const outreach = {
           contacted: ['contacted','responded','approved','booked'].includes(stage),
@@ -301,18 +291,10 @@
           approved: ['approved','booked'].includes(stage),
           bookedDates: stage === 'booked' ? 'TBD' : ''
         };
-        await fetch('/api/hotels/' + hotelId + '/outreach', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(outreach)
-        });
+        HotelDB.updateOutreach(hotelId, outreach);
         const actionMap = { contacted: 'Marked as Contacted', responded: 'Marked as Responded', approved: 'Marked as Approved', booked: 'Marked as Booked' };
-        await fetch('/api/hotels/' + hotelId + '/timeline', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: actionMap[stage], note: '' })
-        });
-        await loadHotel();
+        HotelDB.addTimeline(hotelId, { action: actionMap[stage], note: '' });
+        loadHotel();
       });
     });
 
@@ -322,12 +304,8 @@
       statusEl.textContent = 'Saving...';
       statusEl.className = 'notes-status saving';
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(async () => {
-        await fetch('/api/hotels/' + hotelId, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notes: document.getElementById('notes-editor').value })
-        });
+      saveTimer = setTimeout(() => {
+        HotelDB.saveHotel({ id: hotelId, notes: document.getElementById('notes-editor').value });
         statusEl.textContent = 'Saved';
         statusEl.className = 'notes-status saved';
       }, 800);
@@ -340,14 +318,10 @@
     document.getElementById('tl-cancel').addEventListener('click', () => {
       document.getElementById('timeline-form').style.display = 'none';
     });
-    document.getElementById('tl-submit').addEventListener('click', async () => {
+    document.getElementById('tl-submit').addEventListener('click', () => {
       const action = document.getElementById('tl-action').value;
       const note = document.getElementById('tl-note').value;
-      await fetch('/api/hotels/' + hotelId + '/timeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, note })
-      });
+      HotelDB.addTimeline(hotelId, { action, note });
       document.getElementById('tl-note').value = '';
       document.getElementById('timeline-form').style.display = 'none';
       loadTimeline();
@@ -398,31 +372,25 @@
       window.open('mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body), '_blank');
     });
 
-    document.getElementById('email-mark-contacted').addEventListener('click', async () => {
+    document.getElementById('email-mark-contacted').addEventListener('click', () => {
       const markBtn = document.getElementById('email-mark-contacted');
       if (markBtn.classList.contains('marked')) return;
-      await fetch('/api/hotels/' + hotelId + '/outreach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contacted: true })
-      });
+      HotelDB.updateOutreach(hotelId, { contacted: true });
       const to = document.getElementById('email-to').value;
       const subject = document.getElementById('email-subject').value;
-      await fetch('/api/hotels/' + hotelId + '/timeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'Email Sent', note: 'Outreach to ' + to + ' - ' + subject })
-      });
+      HotelDB.addTimeline(hotelId, { action: 'Email Sent', note: 'Outreach to ' + to + ' - ' + subject });
       markBtn.classList.add('marked');
       markBtn.textContent = 'Contacted';
-      await loadHotel();
+      loadHotel();
     });
 
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') document.getElementById('email-overlay').classList.remove('active');
     });
 
-    loadHotel();
+    HotelDB.ready(function() {
+      loadHotel();
+    });
   })();
   </script>
 </body>

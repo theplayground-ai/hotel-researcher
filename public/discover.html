@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Discover Hotels</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
     .discover-controls {
       display: flex;
@@ -272,10 +272,10 @@
     <div class="nav-brand">Hotel Researcher</div>
     <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
     <div class="nav-links">
-      <a href="/" class="nav-link">Dashboard</a>
-      <a href="/discover.html" class="nav-link active">Discover</a>
-      <a href="/map.html" class="nav-link">Map</a>
-      <a href="/outreach.html" class="nav-link">Outreach</a>
+      <a href="index.html" class="nav-link">Dashboard</a>
+      <a href="discover.html" class="nav-link active">Discover</a>
+      <a href="map.html" class="nav-link">Map</a>
+      <a href="outreach.html" class="nav-link">Outreach</a>
     </div>
   </nav>
 
@@ -319,10 +319,10 @@
     <p>Select a pre-configured Mexican region or type any region name, then hit Quick Scan (Overpass only, fast) or Deep Research (Overpass + website scraping).</p>
   </div>
 
+  <script src="data.js"></script>
   <script>
     let currentHotels = [];
     let seedHotels = [];
-    let pollInterval = null;
 
     function handleImgError(img) {
       const wrap = img.parentElement;
@@ -334,13 +334,9 @@
       wrap.insertBefore(fallback, wrap.firstChild);
     }
 
-    // Load seed data for a region (instant)
-    async function loadSeeds(region) {
-      try {
-        const res = await fetch(`/api/research/seeds/${encodeURIComponent(region)}`);
-        const data = await res.json();
-        return data.hotels || [];
-      } catch { return []; }
+    // Load seed data for a region (instant from HotelDB)
+    function loadSeeds(region) {
+      return HotelDB.getSeeds(region) || [];
     }
 
     // Merge live results with seeds, dedup by normalized name
@@ -357,19 +353,16 @@
       return { hotels: [...seeds, ...newLive], duplicates: newDupes };
     }
 
-    // Load regions into dropdown
-    async function loadRegions() {
-      try {
-        const res = await fetch('/api/regions');
-        const regions = await res.json();
-        const select = document.getElementById('regionSelect');
-        regions.forEach(r => {
-          const opt = document.createElement('option');
-          opt.value = r.name;
-          opt.textContent = `${r.name} (${r.state})`;
-          select.appendChild(opt);
-        });
-      } catch {}
+    // Load regions into dropdown from HotelDB
+    function loadRegions() {
+      const regions = HotelDB.getRegions();
+      const select = document.getElementById('regionSelect');
+      regions.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.name;
+        opt.textContent = `${r.name} (${r.state})`;
+        select.appendChild(opt);
+      });
     }
 
     function getRegion() {
@@ -404,8 +397,8 @@
       return d.innerHTML;
     }
 
-    // Quick Scan: show seeds instantly, then merge live results
-    async function runQuickScan() {
+    // Quick Scan: show seeds instantly, then merge simulated results
+    function runQuickScan() {
       const region = getRegion();
       if (!region) return alert('Select or type a region first');
 
@@ -414,7 +407,7 @@
       document.getElementById('resultsArea').style.display = 'none';
 
       // Step 1: Show seeds instantly
-      seedHotels = await loadSeeds(region);
+      seedHotels = loadSeeds(region);
       if (seedHotels.length > 0) {
         renderResults(seedHotels, [], region, 'Pre-researched results');
         showStatus(`Showing ${seedHotels.length} pre-researched hotels. Running live Overpass scan in background...`, []);
@@ -422,41 +415,30 @@
         showStatus(`Searching OpenStreetMap for hotels in ${region}...`, []);
       }
 
-      // Step 2: Run live scan
-      try {
-        const res = await fetch('/api/research/quick', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ region })
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          if (seedHotels.length === 0) showStatus(data.error || 'Scan failed', [], true);
-          else hideStatus();
-          return;
-        }
-
-        hideStatus();
-        // Merge live with seeds
-        const { hotels, duplicates } = mergeWithSeeds(seedHotels, data.hotels, data.duplicates);
-        const label = seedHotels.length > 0
-          ? `Pre-researched + Quick Scan`
-          : 'Quick Scan';
-        renderResults(hotels, duplicates, region, label);
-      } catch (err) {
-        if (seedHotels.length === 0) {
-          showStatus('Connection error: ' + err.message, [], true);
-        } else {
+      // Step 2: Run simulated scan via HotelDB
+      HotelDB.runQuickScan(region,
+        function onProgress(message, step, totalSteps) {
+          const seedNote = seedHotels.length > 0
+            ? `Showing ${seedHotels.length} pre-researched results while scanning...`
+            : '';
+          const logs = seedNote ? [seedNote, message] : [message];
+          showStatus(`Scanning ${region}... (${step}/${totalSteps})`, logs);
+        },
+        function onComplete(newHotels, duplicates) {
           hideStatus();
+          setLoading(false);
+          // Merge live with seeds
+          const merged = mergeWithSeeds(seedHotels, newHotels, duplicates);
+          const label = seedHotels.length > 0
+            ? 'Pre-researched + Quick Scan'
+            : 'Quick Scan';
+          renderResults(merged.hotels, merged.duplicates, region, label);
         }
-      } finally {
-        setLoading(false);
-      }
+      );
     }
 
-    // Deep Research: show seeds instantly, poll for live results
-    async function runDeepResearch() {
+    // Deep Research: show seeds instantly, then run simulated deep scan
+    function runDeepResearch() {
       const region = getRegion();
       if (!region) return alert('Select or type a region first');
 
@@ -465,7 +447,7 @@
       document.getElementById('resultsArea').style.display = 'none';
 
       // Step 1: Show seeds instantly
-      seedHotels = await loadSeeds(region);
+      seedHotels = loadSeeds(region);
       if (seedHotels.length > 0) {
         renderResults(seedHotels, [], region, 'Pre-researched results');
         showStatus(`Showing ${seedHotels.length} pre-researched hotels. Running deep research in background...`, ['Initializing research engine...']);
@@ -473,80 +455,32 @@
         showStatus(`Starting deep research for ${region}...`, ['Initializing research engine...']);
       }
 
-      // Step 2: Start async research job
-      try {
-        const res = await fetch('/api/research', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ region })
-        });
-        const data = await res.json();
+      // Step 2: Run simulated deep research via HotelDB
+      HotelDB.runDeepResearch(region,
+        function onProgress(message, step, totalSteps, partialResults) {
+          const seedNote = seedHotels.length > 0
+            ? `Showing ${seedHotels.length} pre-researched results while scanning...`
+            : '';
+          const logs = seedNote ? [seedNote, message] : [message];
+          showStatus(`Researching ${region}... (${step}/${totalSteps})`, logs);
 
-        if (!res.ok) {
-          if (seedHotels.length === 0) showStatus(data.error || 'Research failed', [], true);
-          else hideStatus();
-          setLoading(false);
-          return;
-        }
-
-        // Start polling
-        pollJob(data.jobId, region);
-      } catch (err) {
-        if (seedHotels.length === 0) {
-          showStatus('Connection error: ' + err.message, [], true);
-        } else {
+          // If partial results arrive, merge and render them
+          if (partialResults && partialResults.length > 0) {
+            const merged = mergeWithSeeds(seedHotels, partialResults, []);
+            renderResults(merged.hotels, merged.duplicates, region, 'Deep Research (in progress)');
+          }
+        },
+        function onComplete(newHotels, duplicates) {
           hideStatus();
-        }
-        setLoading(false);
-      }
-    }
-
-    function pollJob(jobId, region) {
-      if (pollInterval) clearInterval(pollInterval);
-
-      pollInterval = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/research/${jobId}`);
-          const job = await res.json();
-
-          if (job.status === 'researching') {
-            const seedNote = seedHotels.length > 0
-              ? `Showing ${seedHotels.length} pre-researched results while scanning...`
-              : '';
-            const logs = seedNote ? [seedNote, ...job.progress] : job.progress;
-            showStatus(`Researching ${region}...`, logs);
-          } else if (job.status === 'complete') {
-            clearInterval(pollInterval);
-            pollInterval = null;
-            hideStatus();
-            setLoading(false);
-            // Merge live with seeds
-            const { hotels, duplicates } = mergeWithSeeds(seedHotels, job.hotels, job.duplicates);
-            const label = seedHotels.length > 0
-              ? `Pre-researched + Deep Research`
-              : 'Deep Research';
-            renderResults(hotels, duplicates, region, label);
-          } else if (job.status === 'error') {
-            clearInterval(pollInterval);
-            pollInterval = null;
-            if (seedHotels.length === 0) {
-              showStatus(`Research failed: ${job.error}`, job.progress, true);
-            } else {
-              hideStatus();
-            }
-            setLoading(false);
-          }
-        } catch {
-          clearInterval(pollInterval);
-          pollInterval = null;
-          if (seedHotels.length === 0) {
-            showStatus('Lost connection to server', [], true);
-          } else {
-            hideStatus();
-          }
           setLoading(false);
+          // Merge live with seeds
+          const merged = mergeWithSeeds(seedHotels, newHotels, duplicates);
+          const label = seedHotels.length > 0
+            ? 'Pre-researched + Deep Research'
+            : 'Deep Research';
+          renderResults(merged.hotels, merged.duplicates, region, label);
         }
-      }, 2000);
+      );
     }
 
     function renderResults(hotels, duplicates, region, mode) {
@@ -634,7 +568,7 @@
         </div>`;
     }
 
-    async function addHotel(id) {
+    function addHotel(id) {
       const hotel = currentHotels.find(h => h.id === id);
       if (!hotel) return;
 
@@ -643,13 +577,9 @@
       btn.textContent = 'Adding...';
 
       try {
-        const res = await fetch('/api/hotels/discover', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ hotels: [hotel] })
-        });
+        const added = HotelDB.addDiscoveredHotels([hotel]);
 
-        if (res.ok) {
+        if (added > 0) {
           const card = document.getElementById('card-' + id);
           card.classList.add('added');
           btn.textContent = 'Added';
@@ -678,7 +608,7 @@
       updateMeta();
     }
 
-    async function addAll() {
+    function addAll() {
       if (currentHotels.length === 0) return;
 
       const btn = document.getElementById('addAllBtn');
@@ -686,24 +616,17 @@
       btn.textContent = 'Adding...';
 
       try {
-        const res = await fetch('/api/hotels/discover', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ hotels: currentHotels })
-        });
-        const data = await res.json();
+        const added = HotelDB.addDiscoveredHotels(currentHotels);
 
-        if (res.ok) {
-          btn.textContent = `Added ${data.added} hotels`;
-          // Mark all cards
-          currentHotels.forEach(h => {
-            const card = document.getElementById('card-' + h.id);
-            if (card) card.classList.add('added');
-            const addBtn = document.getElementById('add-' + h.id);
-            if (addBtn) { addBtn.textContent = 'Added'; addBtn.disabled = true; }
-          });
-          currentHotels = [];
-        }
+        btn.textContent = `Added ${added} hotels`;
+        // Mark all cards
+        currentHotels.forEach(h => {
+          const card = document.getElementById('card-' + h.id);
+          if (card) card.classList.add('added');
+          const addBtn = document.getElementById('add-' + h.id);
+          if (addBtn) { addBtn.textContent = 'Added'; addBtn.disabled = true; }
+        });
+        currentHotels = [];
       } catch {
         btn.textContent = 'Error';
         btn.disabled = false;
@@ -731,7 +654,10 @@
       if (e.key === 'Enter') runQuickScan();
     });
 
-    loadRegions();
+    // Initialize when HotelDB is ready
+    HotelDB.ready(function() {
+      loadRegions();
+    });
   </script>
 </body>
 </html>
