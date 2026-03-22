@@ -6,20 +6,20 @@
     "location": "San Jose del Cabo",
     "region": "Los Cabos",
     "avgPricePerNight": "$800-$1,500+",
-    "address": "Paseo del Malecón l-5 D",
+    "address": "Paseo del Malec\u00f3n l-5 D",
     "phone": "1-833-923-8672",
     "email": "reservations.zadun@ritzcarlton.com",
     "instagram": "@zadunreserve",
     "rating": 10,
-    "contactPerson": "Jimena Fernández",
+    "contactPerson": "Jimena Fern\u00e1ndez",
     "contactPosition": "Head of Marketing",
     "contactLinkedIn": "",
     "contactEmail": "",
     "outreach": {
-      "contacted": true,
-      "responded": true,
-      "approved": true,
-      "bookedDates": "TBD"
+      "contacted": false,
+      "responded": false,
+      "approved": false,
+      "bookedDates": ""
     },
     "notes": "",
     "createdAt": "2026-03-21T00:00:00.000Z",
@@ -27,56 +27,7 @@
     "lat": 23.0595,
     "lng": -109.6985,
     "imageUrl": "/images/cab-001.jpg",
-    "timeline": [
-      {
-        "id": "dcdc3997-bdb2-4e85-9ca0-32426df33847",
-        "action": "Marked as Booked",
-        "note": "",
-        "date": "2026-03-21T15:53:56.568Z"
-      },
-      {
-        "id": "f141636c-c48a-4635-896a-ae57cbb5b88c",
-        "action": "Marked as Approved",
-        "note": "",
-        "date": "2026-03-21T15:53:55.634Z"
-      },
-      {
-        "id": "d0773104-77aa-4013-90f1-8d3e3e3cb07b",
-        "action": "Marked as Responded",
-        "note": "",
-        "date": "2026-03-21T15:53:54.834Z"
-      },
-      {
-        "id": "b1a7b685-9df0-475f-b890-0dfa9a99b8ab",
-        "action": "Marked as Contacted",
-        "note": "",
-        "date": "2026-03-21T15:53:52.550Z"
-      },
-      {
-        "id": "596c2d89-626f-461b-a073-e1fa7bfb8596",
-        "action": "Marked as Approved",
-        "note": "",
-        "date": "2026-03-21T15:53:47.001Z"
-      },
-      {
-        "id": "68227c36-c47d-46d3-9144-d06e89cf8b92",
-        "action": "Marked as Contacted",
-        "note": "",
-        "date": "2026-03-21T15:53:46.134Z"
-      },
-      {
-        "id": "2814ddf8-76ca-4f53-8c49-93f6a2acd073",
-        "action": "Marked as Responded",
-        "note": "",
-        "date": "2026-03-21T15:53:45.265Z"
-      },
-      {
-        "id": "97be188e-5586-471b-81a8-3be3a57951d6",
-        "action": "Marked as Approved",
-        "note": "",
-        "date": "2026-03-21T15:53:44.815Z"
-      }
-    ]
+    "timeline": []
   },
   {
     "id": "cab-002",
@@ -90,7 +41,7 @@
     "email": "jwlc.concierge@grupodiestra.com",
     "instagram": "@casamaat",
     "rating": 10,
-    "contactPerson": "Gustavo Adolfo García Gómez",
+    "contactPerson": "Gustavo Adolfo Garc\u00eda G\u00f3mez",
     "contactPosition": "Manager",
     "contactLinkedIn": "",
     "contactEmail": "",
@@ -105,7 +56,8 @@
     "updatedAt": "2026-03-21T12:50:36.601Z",
     "lat": 23.054,
     "lng": -109.702,
-    "imageUrl": "/images/cab-002.jpg"
+    "imageUrl": "/images/cab-002.jpg",
+    "timeline": []
   },
   {
     "id": "cab-003",
@@ -134,7 +86,8 @@
     "updatedAt": "2026-03-21T12:50:37.596Z",
     "lat": 23.047,
     "lng": -109.715,
-    "imageUrl": "/images/cab-003.jpg"
+    "imageUrl": "/images/cab-003.jpg",
+    "timeline": []
   },
   {
     "id": "cab-004",
@@ -143,7 +96,7 @@
     "location": "San Jose del Cabo",
     "region": "Los Cabos",
     "avgPricePerNight": "$700",
-    "address": "P.º Malecon San Jose Lote 8",
+    "address": "P.\u00ba Malecon San Jose Lote 8",
     "phone": "52 624 104 999",
     "email": "loscabos@viceroy.com",
     "instagram": "@viceroyloscabos",
@@ -163,7 +116,8 @@
     "updatedAt": "2026-03-21T12:50:39.465Z",
     "lat": 23.061,
     "lng": -109.695,
-    "imageUrl": "/images/cab-004.jpg"
+    "imageUrl": "/images/cab-004.jpg",
+    "timeline": []
   },
   {
     "id": "cab-005",
@@ -192,7 +146,8 @@
     "updatedAt": "2026-03-21T12:51:54.221Z",
     "lat": 23.0625,
     "lng": -109.6935,
-    "imageUrl": "/images/cab-005.jpg"
+    "imageUrl": "/images/cab-005.jpg",
+    "timeline": []
   },
   {
     "id": "cab-006",
@@ -221,7 +176,8 @@
     "updatedAt": "2026-03-21T12:51:54.222Z",
     "lat": 23.0285,
     "lng": -109.745,
-    "imageUrl": "/images/cab-006.jpg"
+    "imageUrl": "/images/cab-006.jpg",
+    "timeline": []
   },
   {
     "id": "cab-007",
@@ -250,7 +206,8 @@
     "updatedAt": "2026-03-21T12:51:54.222Z",
     "lat": 23.057,
     "lng": -109.706,
-    "imageUrl": "/images/cab-007.jpg"
+    "imageUrl": "/images/cab-007.jpg",
+    "timeline": []
   },
   {
     "id": "cab-008",
@@ -279,11 +236,12 @@
     "updatedAt": "2026-03-21T12:50:46.426Z",
     "lat": 23.031,
     "lng": -109.74,
-    "imageUrl": "/images/cab-008.webp"
+    "imageUrl": "/images/cab-008.webp",
+    "timeline": []
   },
   {
     "id": "cab-009",
-    "name": "Las Ventanas al Paraíso, Rosewood",
+    "name": "Las Ventanas al Para\u00edso, Rosewood",
     "website": "rosewoodhotels.com",
     "location": "San Jose del Cabo",
     "region": "Los Cabos",
@@ -308,7 +266,8 @@
     "updatedAt": "2026-03-21T12:50:48.076Z",
     "lat": 23.015,
     "lng": -109.765,
-    "imageUrl": "/images/cab-009.jpg"
+    "imageUrl": "/images/cab-009.jpg",
+    "timeline": []
   },
   {
     "id": "cab-010",
@@ -337,7 +296,8 @@
     "updatedAt": "2026-03-21T12:50:50.037Z",
     "lat": 23.02,
     "lng": -109.758,
-    "imageUrl": "/images/cab-010.png"
+    "imageUrl": "/images/cab-010.png",
+    "timeline": []
   },
   {
     "id": "cab-011",
@@ -366,7 +326,8 @@
     "updatedAt": "2026-03-21T12:51:54.222Z",
     "lat": 23.005,
     "lng": -109.78,
-    "imageUrl": "/images/cab-011.jpg"
+    "imageUrl": "/images/cab-011.jpg",
+    "timeline": []
   },
   {
     "id": "cab-012",
@@ -395,7 +356,8 @@
     "updatedAt": "2026-03-21T12:50:54.709Z",
     "lat": 23.023,
     "lng": -109.752,
-    "imageUrl": "/images/cab-012.jpg"
+    "imageUrl": "/images/cab-012.jpg",
+    "timeline": []
   },
   {
     "id": "cab-013",
@@ -404,7 +366,7 @@
     "location": "San Jose del Cabo",
     "region": "Los Cabos",
     "avgPricePerNight": "$280",
-    "address": "Corredor Turístico Km 17",
+    "address": "Corredor Tur\u00edstico Km 17",
     "phone": "52 62 4104 2994",
     "email": "hola@marellacabo.com",
     "instagram": "",
@@ -424,7 +386,8 @@
     "updatedAt": "2026-03-21T12:50:56.208Z",
     "lat": 23.018,
     "lng": -109.762,
-    "imageUrl": "/images/cab-013.jpg"
+    "imageUrl": "/images/cab-013.jpg",
+    "timeline": []
   },
   {
     "id": "cab-014",
@@ -454,7 +417,8 @@
     "lat": 23.044,
     "lng": -109.72,
     "imageUrl": "/images/cab-014.jpg",
-    "featured": true
+    "featured": true,
+    "timeline": []
   },
   {
     "id": "cab-015",
@@ -483,7 +447,8 @@
     "updatedAt": "2026-03-21T12:50:58.303Z",
     "lat": 23.042,
     "lng": -109.723,
-    "imageUrl": "/images/cab-015.jpg"
+    "imageUrl": "/images/cab-015.jpg",
+    "timeline": []
   },
   {
     "id": "273f754f-eae8-4a53-bf0d-726e8a99c54e",
@@ -510,7 +475,8 @@
     },
     "notes": "Discovered via research engine on 2026-03-21T13:06:34.942Z",
     "createdAt": "2026-03-21T13:06:34.942Z",
-    "updatedAt": "2026-03-21T13:06:34.942Z"
+    "updatedAt": "2026-03-21T13:06:34.942Z",
+    "timeline": []
   },
   {
     "id": "1dae83b3-a7d5-4f75-8f43-6655f159cb37",
@@ -537,35 +503,8 @@
     },
     "notes": "Discovered via research engine on 2026-03-21T13:07:42.907Z",
     "createdAt": "2026-03-21T13:07:42.907Z",
-    "updatedAt": "2026-03-21T13:07:42.907Z"
-  },
-  {
-    "id": "05bba46e-4b60-4fdf-bbf0-b94ed8acd67a",
-    "name": "Four Seasons Resort Punta Mita",
-    "website": "https://www.fourseasons.com/puntamita",
-    "location": "Punta Mita, Nayarit",
-    "region": "Punta Mita",
-    "avgPricePerNight": "$1,200",
-    "address": "Punta Mita, Bahia de Banderas",
-    "phone": "+52 329 291 6000",
-    "email": "reservations.puntamita@fourseasons.com",
-    "instagram": "@fspuntamita",
-    "rating": 10,
-    "contactPerson": "",
-    "contactPosition": "",
-    "contactLinkedIn": "",
-    "contactEmail": "",
-    "imageUrl": "https://images.pexels.com/photos/2373201/pexels-photo-2373201.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "outreach": {
-      "contacted": false,
-      "responded": false,
-      "approved": false,
-      "bookedDates": ""
-    },
-    "notes": "Discovered via research engine on 2026-03-21T15:52:37.610Z",
-    "createdAt": "2026-03-21T15:52:37.610Z",
-    "updatedAt": "2026-03-21T15:52:37.610Z",
-    "featured": true
+    "updatedAt": "2026-03-21T13:07:42.907Z",
+    "timeline": []
   },
   {
     "id": "33a740b3-d85d-4fef-b404-9fa011fa243c",
@@ -592,7 +531,8 @@
     },
     "notes": "Discovered via research engine on 2026-03-21T15:52:51.210Z",
     "createdAt": "2026-03-21T15:52:51.210Z",
-    "updatedAt": "2026-03-21T15:52:51.210Z"
+    "updatedAt": "2026-03-21T15:52:51.210Z",
+    "timeline": []
   },
   {
     "id": "9f0a0f46-c6d0-4e6f-95f7-d339bd7d3198",
@@ -620,7 +560,8 @@
     "notes": "Discovered via research engine on 2026-03-21T15:52:53.444Z",
     "createdAt": "2026-03-21T15:52:53.444Z",
     "updatedAt": "2026-03-21T15:52:53.444Z",
-    "featured": true
+    "featured": true,
+    "timeline": []
   },
   {
     "id": "bb3d7a75-09bb-467e-9322-18bb51e5fa15",
@@ -647,7 +588,8 @@
     },
     "notes": "Discovered via research engine on 2026-03-21T15:52:57.161Z",
     "createdAt": "2026-03-21T15:52:57.161Z",
-    "updatedAt": "2026-03-21T15:52:57.161Z"
+    "updatedAt": "2026-03-21T15:52:57.161Z",
+    "timeline": []
   },
   {
     "id": "b9a03ff2-4404-402d-8c51-2e351ce566b5",
@@ -674,7 +616,8 @@
     },
     "notes": "Discovered via research engine on 2026-03-21T15:53:07.979Z",
     "createdAt": "2026-03-21T15:53:07.979Z",
-    "updatedAt": "2026-03-21T15:53:07.979Z"
+    "updatedAt": "2026-03-21T15:53:07.979Z",
+    "timeline": []
   },
   {
     "id": "0079529c-a8f6-4f85-93c2-9b8190c82d3f",
@@ -702,7 +645,8 @@
     "notes": "Discovered via research engine on 2026-03-21T15:53:09.244Z",
     "createdAt": "2026-03-21T15:53:09.244Z",
     "updatedAt": "2026-03-21T15:53:09.244Z",
-    "featured": true
+    "featured": true,
+    "timeline": []
   },
   {
     "id": "8477003a-42c9-494f-b3db-103f94afbec5",
@@ -730,7 +674,8 @@
     "notes": "Discovered via research engine on 2026-03-21T15:53:13.278Z",
     "createdAt": "2026-03-21T15:53:13.278Z",
     "updatedAt": "2026-03-21T15:53:13.278Z",
-    "featured": true
+    "featured": true,
+    "timeline": []
   },
   {
     "id": "1ba923b6-ab61-43e8-af04-e59f8ca137a6",
@@ -757,6 +702,36 @@
     },
     "notes": "Discovered via research engine on 2026-03-21T15:53:14.544Z",
     "createdAt": "2026-03-21T15:53:14.544Z",
-    "updatedAt": "2026-03-21T15:53:14.544Z"
+    "updatedAt": "2026-03-21T15:53:14.544Z",
+    "timeline": []
+  },
+  {
+    "id": "05bba46e-4b60-4fdf-bbf0-b94ed8acd67a",
+    "name": "Four Seasons Resort Punta Mita",
+    "website": "https://www.fourseasons.com/puntamita",
+    "location": "Punta Mita, Nayarit",
+    "region": "Punta Mita",
+    "avgPricePerNight": "$1,200",
+    "address": "Punta Mita, Bahia de Banderas",
+    "phone": "+52 329 291 6000",
+    "email": "reservations.puntamita@fourseasons.com",
+    "instagram": "@fspuntamita",
+    "rating": 10,
+    "contactPerson": "",
+    "contactPosition": "",
+    "contactLinkedIn": "",
+    "contactEmail": "",
+    "imageUrl": "https://images.pexels.com/photos/2373201/pexels-photo-2373201.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "outreach": {
+      "contacted": false,
+      "responded": false,
+      "approved": false,
+      "bookedDates": ""
+    },
+    "notes": "Discovered via research engine on 2026-03-21T15:52:37.610Z",
+    "createdAt": "2026-03-21T15:52:37.610Z",
+    "updatedAt": "2026-03-21T15:52:37.610Z",
+    "featured": true,
+    "timeline": []
   }
 ]
