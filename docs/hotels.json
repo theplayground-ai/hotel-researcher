@@ -117,7 +117,8 @@
     "lat": 23.061,
     "lng": -109.695,
     "imageUrl": "https://images.pexels.com/photos/1134176/pexels-photo-1134176.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "timeline": []
+    "timeline": [],
+    "featured": true
   },
   {
     "id": "cab-005",
@@ -147,7 +148,8 @@
     "lat": 23.0625,
     "lng": -109.6935,
     "imageUrl": "https://images.pexels.com/photos/2034335/pexels-photo-2034335.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "timeline": []
+    "timeline": [],
+    "featured": true
   },
   {
     "id": "cab-006",
@@ -417,8 +419,8 @@
     "lat": 23.044,
     "lng": -109.72,
     "imageUrl": "https://images.pexels.com/photos/3601425/pexels-photo-3601425.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "featured": true,
-    "timeline": []
+    "timeline": [],
+    "featured": true
   },
   {
     "id": "cab-015",
@@ -494,7 +496,7 @@
     "contactPosition": "",
     "contactLinkedIn": "",
     "contactEmail": "",
-    "imageUrl": "https://images.pexels.com/photos/1488327/pexels-photo-1488327.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "imageUrl": "https://images.pexels.com/photos/2507010/pexels-photo-2507010.jpeg?auto=compress&cs=tinysrgb&w=800",
     "outreach": {
       "contacted": false,
       "responded": false,
@@ -560,7 +562,6 @@
     "notes": "Discovered via research engine on 2026-03-21T15:52:53.444Z",
     "createdAt": "2026-03-21T15:52:53.444Z",
     "updatedAt": "2026-03-21T15:52:53.444Z",
-    "featured": true,
     "timeline": []
   },
   {
@@ -645,8 +646,8 @@
     "notes": "Discovered via research engine on 2026-03-21T15:53:09.244Z",
     "createdAt": "2026-03-21T15:53:09.244Z",
     "updatedAt": "2026-03-21T15:53:09.244Z",
-    "featured": true,
-    "timeline": []
+    "timeline": [],
+    "featured": true
   },
   {
     "id": "8477003a-42c9-494f-b3db-103f94afbec5",
@@ -674,8 +675,8 @@
     "notes": "Discovered via research engine on 2026-03-21T15:53:13.278Z",
     "createdAt": "2026-03-21T15:53:13.278Z",
     "updatedAt": "2026-03-21T15:53:13.278Z",
-    "featured": true,
-    "timeline": []
+    "timeline": [],
+    "featured": true
   },
   {
     "id": "1ba923b6-ab61-43e8-af04-e59f8ca137a6",
@@ -703,7 +704,8 @@
     "notes": "Discovered via research engine on 2026-03-21T15:53:14.544Z",
     "createdAt": "2026-03-21T15:53:14.544Z",
     "updatedAt": "2026-03-21T15:53:14.544Z",
-    "timeline": []
+    "timeline": [],
+    "featured": true
   },
   {
     "id": "05bba46e-4b60-4fdf-bbf0-b94ed8acd67a",
@@ -731,7 +733,6 @@
     "notes": "Discovered via research engine on 2026-03-21T15:52:37.610Z",
     "createdAt": "2026-03-21T15:52:37.610Z",
     "updatedAt": "2026-03-21T15:52:37.610Z",
-    "featured": true,
     "timeline": []
   }
 ]
